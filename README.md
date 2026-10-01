@@ -104,6 +104,15 @@ This is retrospective window classification. Four test individuals do not establ
 
 ## Deployment
 
+Serve the local preview through FastAPI so CSS, JavaScript, and API routes share the same origin:
+
+```bash
+python -m pip install --no-cache-dir -e '.[serve]'
+uvicorn web.backend.app:app --host 127.0.0.1 --port 8765
+```
+
+Open `http://127.0.0.1:8765/` in the browser. Before the final bundle is installed, the styled interface explicitly reports unavailable inference. Set `SEIZURE_BUNDLE` to the verified expanded demo directory to enable real inference, then restart the server.
+
 `render.yaml` describes a single free Python service. The service can show an honest unavailable-artifact interface before research results exist. The final demo requires a verified, full-cohort release bundle. Development artifacts are rejected.
 
 Release artifacts contain ONNX models, frozen scalers/thresholds, held-out reports, attributed EEG clips, and hashes. Set `SEIZURE_ARTIFACT_URL` and `SEIZURE_ARTIFACT_SHA256` for build-time retrieval. `/healthz` returns 503 until models are verified; `/api/research` remains available to describe readiness. Free Render services sleep and may have approximately minute-long cold starts.
