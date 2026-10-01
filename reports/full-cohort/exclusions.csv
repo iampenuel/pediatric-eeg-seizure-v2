@@ -1,0 +1,4 @@
+recording,case_id,individual_id,partition,status,duration_seconds,seizure_count,seizure_seconds,reason,source_sha256
+chb12/chb12_27.edf,chb12,chb12,train,excluded,3600.0,6,229.0,"Unsupported montage; missing FP1-F7, F7-T7, T7-P7, P7-O1, FP1-F3, F3-C3, C3-P3, P3-O1, FP2-F4, F4-C4, C4-P4, P4-O2, FP2-F8, F8-T8, T8-P8, P8-O2, FZ-CZ, CZ-PZ",3f850341d86a547ddde2cb145dddfc3d0f963738ae2d0a5ff8bdda646978869b
+chb12/chb12_28.edf,chb12,chb12,train,excluded,3600.0,1,34.0,"Unsupported montage; missing FP1-F7, F7-T7, T7-P7, P7-O1, FP1-F3, F3-C3, C3-P3, P3-O1, FP2-F4, F4-C4, C4-P4, P4-O2, FP2-F8, F8-T8, T8-P8, P8-O2, FZ-CZ, CZ-PZ",46783d0e45c494a5e904f80315700daf98b966957ebb770b08d6666fafee7780
+chb12/chb12_29.edf,chb12,chb12,train,excluded,3624.0,6,223.0,"Unsupported montage; missing FP1-F7, F7-T7, T7-P7, P7-O1, FP1-F3, F3-C3, C3-P3, P3-O1, FP2-F4, F4-C4, C4-P4, P4-O2, FP2-F8, F8-T8, T8-P8, P8-O2, FZ-CZ, CZ-PZ",033299f599912cd2a11e90c4e84b506efb07d1b454786e3d2a8547aeb4e8cc76

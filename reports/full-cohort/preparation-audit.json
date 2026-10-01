@@ -1,0 +1,90 @@
+{
+  "stage": "full-cohort-prepared-and-audited",
+  "created_utc": "2026-10-01T20:38:31.784518+00:00",
+  "git_commit": "41f97c35b30bdbcf4e7461af1691161858359c21",
+  "recovery_sha256": "e15d40a83f36133b17f209ea410da85b2dea8926b8d45bd4a08b79b8d9f200a0",
+  "dataset_hash": "a7ccc4297e5df67c0ee8c341dcf8ddb6c219f62cc6913caa5d362c0d47c3b8d8",
+  "source_recordings": 686,
+  "prepared_recordings": 683,
+  "excluded_recordings": 3,
+  "unique_individuals": 23,
+  "canonical_split_sizes": {
+    "test": 4,
+    "train": 15,
+    "validation": 4
+  },
+  "window_counts": {
+    "test": 147727,
+    "train": 241232,
+    "validation": 51969
+  },
+  "label_counts": {
+    "test_0": 147517,
+    "test_1": 210,
+    "train_0": 240170,
+    "train_1": 1062,
+    "validation_0": 51682,
+    "validation_1": 287
+  },
+  "windows_sha256_verified": "7b8a1f122f6a93ce10c0124ff9732789246c030aabb402aa7349671c873988b9",
+  "all_windows_18_by_2048": "channel schema verified in Colab preparation; 2048-sample boundaries independently checked in downloaded manifest",
+  "canonical_partitions_disjoint": true,
+  "chb02_16_positive_windows": [
+    [
+      128.0,
+      136.0,
+      6.0
+    ],
+    [
+      136.0,
+      144.0,
+      8.0
+    ],
+    [
+      144.0,
+      152.0,
+      8.0
+    ],
+    [
+      152.0,
+      160.0,
+      8.0
+    ],
+    [
+      160.0,
+      168.0,
+      8.0
+    ],
+    [
+      168.0,
+      176.0,
+      8.0
+    ],
+    [
+      176.0,
+      184.0,
+      8.0
+    ],
+    [
+      184.0,
+      192.0,
+      8.0
+    ],
+    [
+      192.0,
+      200.0,
+      8.0
+    ],
+    [
+      200.0,
+      208.0,
+      8.0
+    ],
+    [
+      208.0,
+      216.0,
+      4.0
+    ]
+  ],
+  "status": "Preparation and independent manifest verification complete. Training and final evaluation remain pending."
+}

@@ -1,8 +1,8 @@
 {
   "purpose": "Implementation verification only; not the final full-cohort experiment",
   "development": true,
-  "offline_tests_passed": 33,
-  "clean_linux_ci": "https://github.com/iampenuel/pediatric-eeg-seizure-v2/actions/runs/36917523329",
+  "offline_tests_passed": 35,
+  "clean_linux_ci": "https://github.com/iampenuel/pediatric-eeg-seizure-v2/actions/runs/36921522191",
   "real_data_recordings": [
     "chb02/chb02_01.edf",
     "chb02/chb02_16.edf",
@@ -43,7 +43,7 @@
     "screenshot": "frontend-localhost.jpg",
     "mobile_viewport": "requested browser override was not applied to preview; mobile visual verification pending"
   },
-  "colab_recovery_tests_passed": 8,
+  "colab_recovery_tests_passed": 9,
   "storage_policy": "Drive-free; Colab runtime raw/cache; gitignored local recovery/ for verified compact backups",
   "recovery_transport": {
     "stage": "transport-check",
