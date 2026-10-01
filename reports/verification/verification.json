@@ -1,7 +1,7 @@
 {
   "purpose": "Implementation verification only; not the final full-cohort experiment",
   "development": true,
-  "offline_tests_passed": 38,
+  "offline_tests_passed": 39,
   "clean_linux_ci": "https://github.com/iampenuel/pediatric-eeg-seizure-v2/actions/runs/36939042298",
   "real_data_recordings": [
     "chb02/chb02_01.edf",
@@ -68,5 +68,10 @@
       "scikit-learn",
       "matplotlib"
     ]
+  },
+  "epoch_resume_equivalence": {
+    "test": "tests/test_training_resume.py",
+    "scope": "Two-epoch CPU synthetic-data integration using the real baseline and training loop; interrupted after the first saved epoch, then resumed. Not a GPU or clinical-performance claim.",
+    "result": "Exact final weights, Adam state, RNG states, validation history and selected threshold match uninterrupted training."
   }
 }
