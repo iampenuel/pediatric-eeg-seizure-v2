@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-01",
+  "event": "Colab disconnected during first baseline epoch; reconnect produced an empty runtime",
+  "last_completed_stage": "full-cohort-prepared-and-audited",
+  "completed_training_epochs": 0,
+  "local_recovery_sha256": "e15d40a83f36133b17f209ea410da85b2dea8926b8d45bd4a08b79b8d9f200a0",
+  "local_recovery_restore_verified_files": 720,
+  "new_runtime_revision": "cbc5ff8c750df256a5618cba70c357e17bfb8ac5",
+  "new_runtime": "T4, runtime version 2026.07, Python 3.12",
+  "rebuild_status": "Full-cohort preparation restarted after 38 Colab tests passed",
+  "storage_change": "New caches store (samples,18) int16 rather than (18,samples). Metadata/fingerprints/cache hashes explicitly record the layout. Model input remains (18,2048).",
+  "scientific_protocol_changed": false,
+  "held_out_prediction_evaluation_started": false,
+  "next_check": "Compare rebuilt windows.csv SHA256 with 7b8a1f122f6a93ce10c0124ff9732789246c030aabb402aa7349671c873988b9 before training"
+}

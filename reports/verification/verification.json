@@ -1,8 +1,8 @@
 {
   "purpose": "Implementation verification only; not the final full-cohort experiment",
   "development": true,
-  "offline_tests_passed": 36,
-  "clean_linux_ci": "https://github.com/iampenuel/pediatric-eeg-seizure-v2/actions/runs/36926057327",
+  "offline_tests_passed": 38,
+  "clean_linux_ci": "https://github.com/iampenuel/pediatric-eeg-seizure-v2/actions/runs/36937680716",
   "real_data_recordings": [
     "chb02/chb02_01.edf",
     "chb02/chb02_16.edf",
@@ -41,7 +41,9 @@
     "served_by": "FastAPI / uvicorn",
     "verified": "styled desktop interface, channel toggle, keyboard expansion, honest missing-artifact state",
     "screenshot": "frontend-localhost.jpg",
-    "mobile_viewport": "requested browser override was not applied to preview; mobile visual verification pending"
+    "mobile_viewport": "Verified live app in a 390px same-origin iframe: document clientWidth and scrollWidth both 390; provenance visible; keyboard channel expansion and toggle 18->17->18 passed. Browser-wide viewport override was unavailable.",
+    "runtime_files": "Same FastAPI web folder copied to /private/tmp/pediatric-eeg-v2-preview to avoid synced-file read timeouts",
+    "runtime_copy_hashes_match": true
   },
   "colab_recovery_tests_passed": 9,
   "storage_policy": "Drive-free; Colab runtime raw/cache; gitignored local recovery/ for verified compact backups",
@@ -52,5 +54,6 @@
     "local_destination": "recovery/transport-check/latest.tar.gz",
     "verified": "browser download from Colab; archive and member hashes verified; local folder confirmed gitignored"
   },
-  "io_equivalence": "io-equivalence.json"
+  "io_equivalence": "io-equivalence.json",
+  "colab_offline_tests_passed": 38
 }
