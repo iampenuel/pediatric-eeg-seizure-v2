@@ -3,7 +3,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from collections import Counter
 from pathlib import Path
 from seizure_v2.common import write_json, read_json, sha256, object_hash
-from seizure_v2.data.download import inventory, download, BASE_URL
+from seizure_v2.data.download import inventory, download, BASE_URL, recording_url
 from seizure_v2.data.annotations import parse_summary, annotations_for, reconcile_inventory
 from seizure_v2.data.edf import verified_cache, convert_edf, cache_paths
 from seizure_v2.data.splits import split_manifest, individual_id, partition_for
@@ -40,7 +40,7 @@ def _prepare(root, patients=None, recordings=None, full=False, evict_raw=False, 
         meta = verified_cache(root, recording, sums[recording], intervals)
         reused = meta is not None
         if meta is None:
-            source = download(base + recording, root / "raw" / recording, sums[recording])
+            source = download(recording_url(base, recording), root / "raw" / recording, sums[recording])
             meta = convert_edf(source, root, recording, sums[recording], intervals)
             if evict_raw:
                 # Only this downloader's verified staging file, never arbitrary input files.

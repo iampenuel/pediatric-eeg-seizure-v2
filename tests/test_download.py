@@ -46,3 +46,8 @@ def test_invalid_hash_and_path_rejected(tmp_path):
     assert not target.exists()
     with pytest.raises(ValueError):
         safe_relative("../secret")
+def test_inventory_filename_plus_is_preserved_in_download_url():
+    from seizure_v2.data.download import recording_url
+    base = "https://physionet-open.s3.amazonaws.com/chbmit/1.0.0/"
+    assert recording_url(base, "chb02/chb02_16+.edf") == base + "chb02/chb02_16%2B.edf"
+    assert recording_url(base, "chb02/chb02_16.edf") == base + "chb02/chb02_16.edf"

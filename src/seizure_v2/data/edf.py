@@ -3,6 +3,7 @@ import numpy as np
 from seizure_v2.common import sha256, write_json, read_json, object_hash
 from seizure_v2.data.channels import CHANNELS, select_channels
 from seizure_v2.data.windows import FS, PREPROCESSING_VERSION, seizure_samples
+from seizure_v2.data.download import BASE_URL, recording_url
 
 
 def cache_paths(root, recording):
@@ -38,7 +39,7 @@ def convert_edf(source, root, recording, source_sha, intervals):
         labels = reader.getSignalLabels()
         meta = {"recording": recording, "case_id": recording.split("/")[0],
                 "source_sha256": source_sha, "seizures": intervals,
-                "source_url": "https://physionet.org/files/chbmit/1.0.0/" + recording,
+                "source_url": recording_url(BASE_URL, recording),
                 "duration_seconds": float(reader.getFileDuration()),
                 "input_fingerprint": fingerprint(recording, source_sha, intervals),
                 "preprocessing_version": PREPROCESSING_VERSION, "source_labels": labels}

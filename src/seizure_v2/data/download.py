@@ -1,5 +1,6 @@
 """Verified, resumable downloads into an explicitly owned cache."""
 from pathlib import Path, PurePosixPath
+from urllib.parse import quote
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -20,6 +21,11 @@ def safe_relative(name):
     if path.is_absolute() or ".." in path.parts or "\\" in name:
         raise ValueError(f"Unsafe source path: {name}")
     return name
+
+
+def recording_url(base, recording):
+    # S3 interprets a literal '+' as a space; preserve the inventory's exact key.
+    return base + quote(safe_relative(recording), safe="/")
 
 
 def download(url, destination, expected_sha=None, client=None):
