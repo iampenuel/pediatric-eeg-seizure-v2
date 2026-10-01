@@ -54,7 +54,7 @@ def _build_bundle(root, study, reports, output):
         raise ValueError("Bundle destination must be empty")
     (output / "models").mkdir(parents=True, exist_ok=True)
     (output / "examples").mkdir(exist_ok=True)
-    examples, selected_ids, models = [], set(), {}
+    examples, selected_examples, models = [], {}, {}
     for name, frozen in spec["models"].items():
         test_dir = Path(reports) / name / "test"
         metrics = read_json(test_dir / "metrics.json")
@@ -75,9 +75,9 @@ def _build_bundle(root, study, reports, output):
                         "validation_patient_macro_ap": frozen["validation_patient_macro_ap"], "export_parity": parity}
         for chosen in read_json(test_dir / "representative_examples.json"):
             key = chosen["window_id"]
-            if key in selected_ids:
+            if key in selected_examples:
+                selected_examples[key]["curations"][name] = chosen["category"]
                 continue
-            selected_ids.add(key)
             meta = read_json(cache_paths(root, chosen["recording"])[1])
             start = max(0, chosen["start_sample"] - 7 * 2048)
             end = min(meta["n_samples"] // 2048 * 2048, start + 16 * 2048)
@@ -91,7 +91,9 @@ def _build_bundle(root, study, reports, output):
                              "clip_start_seconds": start / 256, "clip_end_seconds": end / 256,
                              "focus_start_seconds": chosen["start_seconds"], "seizures": meta["seizures"],
                              "curation_model": name, "curation_category": chosen["category"],
+                             "curations": {name: chosen["category"]},
                              "source_sha256": meta["source_sha256"], "source_url": meta["source_url"]})
+            selected_examples[key] = examples[-1]
     write_json(output / "study.json", spec)
     attribution = "Derived clips from CHB-MIT Scalp EEG Database v1.0.0, John Guttag (2010), PhysioNet. DOI: 10.13026/C2K01R. Open Data Commons Attribution License v1.0. https://physionet.org/content/chbmit/1.0.0/ . Clips are curated illustrations, not a representative evaluation sample."
     (output / "ATTRIBUTION.txt").write_text(attribution + "\n")

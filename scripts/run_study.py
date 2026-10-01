@@ -32,7 +32,7 @@ def main():
     # Persist provenance, not the signal arrays or downloaded EDF files.
     manifests = output / "manifests"
     manifests.mkdir(exist_ok=True)
-    for name in ["dataset.json", "split.json"]:
+    for name in ["dataset.json", "split.json", "recordings.csv", "exclusions.csv"]:
         shutil.copyfile(Path(args.data) / "manifests" / name, manifests / name)
     with (Path(args.data) / "manifests/windows.csv").open("rb") as source:
         with gzip.open(manifests / "windows.csv.gz", "wb") as destination:

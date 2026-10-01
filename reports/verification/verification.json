@@ -25,5 +25,13 @@
     "train baseline --resume (frozen output identical)"
   ],
   "scaler_fit_partition": "train",
-  "results_are_final": false
+  "results_are_final": false,
+  "http_smoke": {
+    "/": 200,
+    "/static/app.js": 200,
+    "/api/research": 200,
+    "/healthz": 503,
+    "/api/examples": 503
+  },
+  "http_smoke_note": "No trained final artifacts installed; unavailable inference is intentional."
 }

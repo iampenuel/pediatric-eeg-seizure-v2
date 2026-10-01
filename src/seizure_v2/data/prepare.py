@@ -6,7 +6,7 @@ from seizure_v2.common import write_json, read_json, sha256, object_hash
 from seizure_v2.data.download import inventory, download, BASE_URL
 from seizure_v2.data.annotations import parse_summary, annotations_for, reconcile_inventory
 from seizure_v2.data.edf import verified_cache, convert_edf, cache_paths
-from seizure_v2.data.splits import split_manifest, individual_id
+from seizure_v2.data.splits import split_manifest, individual_id, partition_for
 from seizure_v2.data.windows import window_rows, PREPROCESSING_VERSION
 
 
@@ -55,11 +55,19 @@ def _prepare(root, patients=None, recordings=None, full=False, evict_raw=False, 
     manifests.mkdir(parents=True, exist_ok=True)
     write_json(manifests / "split.json", split_manifest())
     prepared, exclusions, cases, counts, labels = [], [], set(), Counter(), Counter()
+    accounting = []
     temp = manifests / "windows.csv.tmp"
     writer = None
     with temp.open("w", newline="") as stream:
         for recording in all_records:
             meta = verified_cache(root, recording, sums[recording], annotations[recording])
+            case = recording.split("/")[0]
+            accounting.append({"recording": recording, "case_id": case, "individual_id": individual_id(case),
+                               "partition": partition_for(case), "status": meta["status"] if meta else "not_prepared",
+                               "duration_seconds": meta["duration_seconds"] if meta else None,
+                               "seizure_count": len(annotations[recording]),
+                               "seizure_seconds": sum(end - start for start, end in annotations[recording]),
+                               "reason": meta.get("reason", "") if meta else "", "source_sha256": sums[recording]})
             if meta is None:
                 continue
             if meta["status"] == "excluded":
@@ -78,10 +86,19 @@ def _prepare(root, patients=None, recordings=None, full=False, evict_raw=False, 
         temp.unlink(missing_ok=True)
         raise ValueError("No eligible windows were prepared")
     temp.replace(manifests / "windows.csv")
+    for name, entries in [("recordings.csv", accounting), ("exclusions.csv", [entry for entry in accounting if entry["status"] == "excluded"])]:
+        temporary = manifests / (name + ".tmp")
+        with temporary.open("w", newline="") as stream:
+            report_writer = csv.DictWriter(stream, fieldnames=list(accounting[0]))
+            report_writer.writeheader()
+            report_writer.writerows(entries)
+        temporary.replace(manifests / name)
     complete = len(prepared) + len(exclusions) == len(all_records) and len({individual_id(c) for c in cases}) == 23
     report = {"source_dataset": "CHB-MIT 1.0.0", "source_recordings": len(all_records),
               "source_seizure_recordings": len(seizures), "prepared_recordings": len(prepared),
               "excluded_recordings": len(exclusions), "individuals": sorted({individual_id(c) for c in cases}),
+              "excluded_duration_seconds": sum(meta["duration_seconds"] for meta in exclusions),
+              "excluded_seizure_count": sum(len(meta["seizures"]) for meta in exclusions),
               "cases": sorted(cases), "window_counts": dict(counts), "label_counts": dict(labels),
               "full_cohort_complete": complete, "preprocessing_version": PREPROCESSING_VERSION,
               "windows_sha256": sha256(manifests / "windows.csv"), "split_sha256": split_manifest()["sha256"],
