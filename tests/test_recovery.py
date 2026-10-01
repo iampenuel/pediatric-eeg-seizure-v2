@@ -97,3 +97,17 @@ def test_checkpoint_accepts_only_verified_digest(tmp_path, monkeypatch):
     monkeypatch.setattr("seizure_v2.recovery.snapshot", lambda *args: {"sha256": "abc", "stage": "test"})
     monkeypatch.setattr("sys.stdin", io.StringIO("abc\n"))
     checkpoint("test")
+
+
+def test_receiver_moves_only_after_verification(tmp_path):
+    from scripts.receive_recovery import receive
+    root = tmp_path / "run"
+    root.mkdir()
+    event = snapshot(root, tmp_path / "download.tar.gz", "transport-check")
+    destination = tmp_path / "local"
+    with pytest.raises(ValueError, match="SHA-256 mismatch"):
+        receive(event["path"], "0" * 64, destination, move=True)
+    assert Path(event["path"]).exists()
+    latest = receive(event["path"], event["sha256"], destination, move=True)
+    assert not Path(event["path"]).exists()
+    assert sha256(latest) == event["sha256"]

@@ -7,7 +7,7 @@ from seizure_v2.common import read_json, sha256, write_json
 from seizure_v2.recovery import inspect_archive
 
 
-def receive(source, digest, destination):
+def receive(source, digest, destination, move=False):
     source, destination = Path(source), Path(destination)
     manifest = inspect_archive(source, digest)
     destination.mkdir(parents=True, exist_ok=True)
@@ -30,6 +30,10 @@ def receive(source, digest, destination):
                      "git_commit": manifest["git_commit"], "bytes": latest.stat().st_size,
                      "verified_utc": datetime.now(timezone.utc).isoformat()})
     write_json(receipt_path, receipts)
+    if move and source.resolve() not in {latest.resolve(), previous.resolve()}:
+        # Remove only the explicitly supplied, hash-verified download, after its
+        # replacement and durable receipt exist. This avoids duplicate epoch files.
+        source.unlink()
     return latest
 
 
@@ -38,6 +42,7 @@ if __name__ == "__main__":
     parser.add_argument("source")
     parser.add_argument("--sha256", required=True)
     parser.add_argument("--destination", default="recovery/full-seed42")
+    parser.add_argument("--move", action="store_true", help="Move the verified browser download into the recovery folder")
     args = parser.parse_args()
-    print(receive(args.source, args.sha256, args.destination))
+    print(receive(args.source, args.sha256, args.destination, move=args.move))
     print("Verified SHA-256:", args.sha256)
