@@ -5,9 +5,9 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 .DS_Store
-data/
-runs/
-artifacts/
+/data/
+/runs/
+/artifacts/
 dist/
 build/
 *.edf
