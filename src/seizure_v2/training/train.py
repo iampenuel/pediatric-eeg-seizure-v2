@@ -71,12 +71,13 @@ def train(root, config, output, resume=False, development=False, epochs=None, de
         raise ValueError("Run is frozen; use a new run directory")
     if (output / "last.pt").exists() and not resume:
         raise ValueError("Existing run; explicitly resume or use a new directory")
-    state = None
+    state, saved_run = None, None
     if resume:
         state = torch.load(output / "last.pt", map_location="cpu", weights_only=False)
         if state["dataset_hash"] != report["dataset_hash"] or state["config"] != cfg:
             raise ValueError("Resume requires identical dataset and configuration")
-        if read_json(output / "run.json")["development"] != development:
+        saved_run = read_json(output / "run.json")
+        if saved_run["development"] != development:
             raise ValueError("Cannot change a run's development status")
         if (output / "frozen.json").exists():
             frozen = read_json(output / "frozen.json")
@@ -105,7 +106,7 @@ def train(root, config, output, resume=False, development=False, epochs=None, de
     workers = cfg["num_workers"]
     loader_options = dict(batch_size=cfg["batch_size"], num_workers=workers, worker_init_fn=seed_worker,
                           pin_memory=device.type == "cuda")
-    train_loader = DataLoader(WindowDataset(root, train_rows, scaler), shuffle=True, generator=generator, **loader_options)
+    train_loader = DataLoader(WindowDataset(root, train_rows, scaler, random_access=True), shuffle=True, generator=generator, **loader_options)
     val_loader = DataLoader(WindowDataset(root, val_rows, scaler), shuffle=False, **loader_options)
     start, best, stale, history = 0, -1., 0, []
     if state is not None:
@@ -132,6 +133,12 @@ def train(root, config, output, resume=False, development=False, epochs=None, de
            "git_commit": git.stdout.strip() or "uncommitted", "pos_weight": weight,
            "parameter_count": sum(p.numel() for p in model.parameters()),
            "determinism": "seeded; deterministic algorithms requested with warnings; cross-device bitwise identity is not guaranteed"}
+    provenance_fields = ["git_commit", "versions", "hardware", "device"]
+    previous_segments = [] if saved_run is None else saved_run.get("execution_segments", [
+        {**{key: saved_run[key] for key in provenance_fields}, "first_epoch": 1}])
+    run["execution_segments"] = [*previous_segments,
+        {**{key: run[key] for key in provenance_fields}, "first_epoch": start + 1,
+         "shuffled_cache_io": "MADV_RANDOM when supported; signal tensors and order unchanged"}]
     write_json(output / "run.json", run)
     for epoch in range(start, cfg["max_epochs"]):
         if stale >= cfg["patience"]:
@@ -139,7 +146,8 @@ def train(root, config, output, resume=False, development=False, epochs=None, de
         began = time.monotonic()
         model.train()
         total_loss = 0.
-        for x, y in train_loader:
+        print(f"{cfg['model']} epoch {epoch + 1}: training {len(train_rows)} windows", flush=True)
+        for batch_index, (x, y) in enumerate(train_loader, 1):
             x, y = x.to(device), y.to(device)
             optimizer.zero_grad(set_to_none=True)
             loss = loss_fn(model(x), y)
@@ -148,6 +156,10 @@ def train(root, config, output, resume=False, development=False, epochs=None, de
             loss.backward()
             optimizer.step()
             total_loss += loss.item() * len(y)
+            if batch_index % 200 == 0 or batch_index == len(train_loader):
+                print(f"{cfg['model']} epoch {epoch + 1}: batch {batch_index}/{len(train_loader)} "
+                      f"({time.monotonic() - began:.0f}s)", flush=True)
+        print(f"{cfg['model']} epoch {epoch + 1}: validating {len(val_rows)} windows", flush=True)
         scores = predict(model, val_loader, device)
         value = macro_average(grouped_metrics(val_rows, scores, .5))["auprc_ap"]
         if value is None:

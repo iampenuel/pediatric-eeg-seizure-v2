@@ -7,11 +7,13 @@ import subprocess
 import sys
 
 
-def run_with_downloads(data="/content/chbmit-v2", output="/content/eeg-v2-run/full-seed42"):
+def run_with_downloads(data="/content/chbmit-v2", output="/content/eeg-v2-run/full-seed42", reuse_prepared=False):
     from google.colab import files
     from seizure_v2.recovery import PREFIX
     command = [sys.executable, "scripts/run_study.py", "--data", data,
                "--output", output, "--interactive-backups"]
+    if reuse_prepared:
+        command.append("--reuse-prepared")
     process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                stderr=subprocess.STDOUT, text=True, bufsize=1, start_new_session=True)
     try:

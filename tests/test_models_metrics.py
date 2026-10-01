@@ -77,6 +77,33 @@ def test_invalid_resume_preserves_scaler(tmp_path, monkeypatch):
     assert scaler.read_text() == "original frozen scaler"
 
 
+def test_random_io_hint_preserves_shuffled_windows_and_source(tmp_path):
+    from seizure_v2.common import write_json, sha256
+    from seizure_v2.data.edf import cache_paths
+    from seizure_v2.data.channels import CHANNELS
+    from seizure_v2.training.dataset import WindowDataset
+    rows = []
+    for number in range(10):  # Force eviction from the bounded mapping cache.
+        recording = f"chb02/fixture{number}.edf"
+        array, metadata = cache_paths(tmp_path, recording)
+        array.parent.mkdir(parents=True, exist_ok=True)
+        values = np.random.default_rng(number).integers(-32768, 32768, (18, 4096), dtype=np.int16)
+        np.save(array, values)
+        write_json(metadata, {"calibration": [{"scale_uv": .13, "offset_uv": -2.5}] * 18})
+        rows += [{"recording": recording, "start_sample": start, "end_sample": start + 2048,
+                  "label": number % 2} for start in [0, 2048]]
+    scaler = {"channels": CHANNELS, "fit_partition": "train", "mean_uv": [1.] * 18, "std_uv": [37.] * 18}
+    ordinary = WindowDataset(tmp_path, rows, scaler)
+    advised = WindowDataset(tmp_path, rows, scaler, random_access=True)
+    before = {str(p): sha256(p) for p in tmp_path.rglob("*.npy")}
+    for index in np.random.default_rng(42).permutation(len(rows)).tolist() * 2:
+        x, y = ordinary[index]
+        hinted_x, hinted_y = advised[index]
+        np.testing.assert_array_equal(x, hinted_x)
+        assert y == hinted_y
+    assert before == {str(p): sha256(p) for p in tmp_path.rglob("*.npy")}
+
+
 def test_representatives_include_failures_with_provenance():
     rows = [{"window_id": f"{i}", "recording": f"r{i}", "individual_id": f"p{i}", "label": y} for i,y in enumerate([1,0,0,1])]
     selected = representative(rows, [.9,.1,.8,.2], .5)

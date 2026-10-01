@@ -86,5 +86,11 @@
       4.0
     ]
   ],
-  "status": "Preparation and independent manifest verification complete. Training and final evaluation remain pending."
+  "status": "Preparation and independent manifest verification complete. Training and final evaluation remain pending.",
+  "recovery_restore_check": {
+    "verified": true,
+    "compact_files": 720,
+    "recording_metadata_files": 686,
+    "raw_or_cache_arrays_present": false
+  }
 }

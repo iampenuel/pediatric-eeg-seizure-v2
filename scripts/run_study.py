@@ -22,6 +22,7 @@ def main():
     parser.add_argument("--data", required=True)
     parser.add_argument("--output", required=True)
     parser.add_argument("--interactive-backups", action="store_true")
+    parser.add_argument("--reuse-prepared", action="store_true", help="Use an intact runtime cache after a full integrity audit; fail if missing or incomplete")
     args = parser.parse_args()
     output = Path(args.output)
     output.mkdir(parents=True, exist_ok=True)
@@ -41,7 +42,8 @@ def main():
     (environment / "requirements.txt").write_text(subprocess.check_output([sys.executable, "-m", "pip", "freeze"], text=True))
     (environment / "hardware.txt").write_text(subprocess.check_output(["nvidia-smi"], text=True))
     cli = [sys.executable, "-m", "seizure_v2.cli"]
-    run(*cli, "prepare", "--root", args.data, "--full", "--evict-raw", "--mirror", "s3", "--workers", "4")
+    if not args.reuse_prepared:
+        run(*cli, "prepare", "--root", args.data, "--full", "--evict-raw", "--mirror", "s3", "--workers", "4")
     run(*cli, "audit", "--root", args.data, "--require-full")
     # Persist provenance, not the signal arrays or downloaded EDF files.
     manifests = output / "manifests"
