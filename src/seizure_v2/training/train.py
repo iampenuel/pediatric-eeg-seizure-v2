@@ -15,6 +15,7 @@ from seizure_v2.data.normalization import fit_scaler
 from seizure_v2.models import make_model
 from seizure_v2.training.dataset import WindowDataset
 from seizure_v2.evaluation.metrics import grouped_metrics, macro_average, select_threshold
+from seizure_v2.recovery import checkpoint
 
 
 def seed_everything(seed):
@@ -167,6 +168,7 @@ def train(root, config, output, resume=False, development=False, epochs=None, de
         atomic_checkpoint(output / "last.pt", state)
         write_json(output / "history.json", history)
         print(history[-1], flush=True)
+        checkpoint(f"{cfg['model']}-epoch-{epoch + 1:02d}")
     best_state = torch.load(output / "best.pt", map_location=device, weights_only=True)
     model.load_state_dict(best_state["model_state"])
     scores = predict(model, val_loader, device)
@@ -175,6 +177,7 @@ def train(root, config, output, resume=False, development=False, epochs=None, de
               "checkpoint_sha256": sha256(output / "best.pt"), "scaler_sha256": sha256(output / "scaler.json"),
               "checkpoint_epoch": best_state["epoch"] + 1}
     write_json(output / "frozen.json", frozen)
+    checkpoint(f"{cfg['model']}-frozen")
     return frozen
 
 

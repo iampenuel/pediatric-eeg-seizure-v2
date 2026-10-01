@@ -8,6 +8,7 @@ __pycache__/
 /data/
 /runs/
 /artifacts/
+/recovery/
 dist/
 build/
 *.edf
