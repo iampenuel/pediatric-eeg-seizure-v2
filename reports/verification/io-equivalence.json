@@ -1,0 +1,40 @@
+{
+  "purpose": "Engineering I/O equivalence check; no model selection or held-out predictions",
+  "dataset_hash": "a7ccc4297e5df67c0ee8c341dcf8ddb6c219f62cc6913caa5d362c0d47c3b8d8",
+  "partition": "train",
+  "windows_per_sequence": 128,
+  "runtime": "Colab Python 3.12 / Linux; concurrent baseline training",
+  "sampling": "numpy.default_rng(seed).choice(len(training_rows),128,replace=False)",
+  "results": [
+    {
+      "seed": 42,
+      "random_advice": false,
+      "seconds": 2.287,
+      "read_MiB": 165.2,
+      "tensor_sha256": "2563680340118ebbad276eb4eff01712341e25f127573479d2ed1dcfb0886f86"
+    },
+    {
+      "seed": 42,
+      "random_advice": true,
+      "seconds": 0.419,
+      "read_MiB": 0.1,
+      "tensor_sha256": "2563680340118ebbad276eb4eff01712341e25f127573479d2ed1dcfb0886f86"
+    },
+    {
+      "seed": 43,
+      "random_advice": true,
+      "seconds": 1.707,
+      "read_MiB": 11.7,
+      "tensor_sha256": "e56cc1862680d3dd635953f0cfa30ed90c6be90565cdf24e1276db54f983189e"
+    },
+    {
+      "seed": 43,
+      "random_advice": false,
+      "seconds": 0.246,
+      "read_MiB": 9.0,
+      "tensor_sha256": "e56cc1862680d3dd635953f0cfa30ed90c6be90565cdf24e1276db54f983189e"
+    }
+  ],
+  "interpretation": "Tensor bytes and labels match exactly within each sequence. Timing is affected by cache warming, different sequences, and concurrent training; this is not a controlled throughput comparison. The hint reduces unnecessary read-ahead for random channel slices.",
+  "documentation": "https://docs.python.org/3.12/library/mmap.html#mmap.mmap.madvise"
+}

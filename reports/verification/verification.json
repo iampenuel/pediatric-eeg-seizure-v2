@@ -1,8 +1,8 @@
 {
   "purpose": "Implementation verification only; not the final full-cohort experiment",
   "development": true,
-  "offline_tests_passed": 35,
-  "clean_linux_ci": "https://github.com/iampenuel/pediatric-eeg-seizure-v2/actions/runs/36921522191",
+  "offline_tests_passed": 36,
+  "clean_linux_ci": "https://github.com/iampenuel/pediatric-eeg-seizure-v2/actions/runs/36926057327",
   "real_data_recordings": [
     "chb02/chb02_01.edf",
     "chb02/chb02_16.edf",
@@ -51,5 +51,6 @@
     "sha256": "ce4e73d130f46863d3f2631c79a629dade91c9f92b53da9cf66c3627510def72",
     "local_destination": "recovery/transport-check/latest.tar.gz",
     "verified": "browser download from Colab; archive and member hashes verified; local folder confirmed gitignored"
-  }
+  },
+  "io_equivalence": "io-equivalence.json"
 }
