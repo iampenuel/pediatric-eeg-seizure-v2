@@ -4,7 +4,7 @@ from seizure_v2.data.channels import CHANNELS
 
 
 def fit_scaler(root, rows, dataset_hash):
-    from seizure_v2.data.edf import cache_paths, to_microvolts
+    from seizure_v2.data.edf import cache_paths, to_microvolts, cached_samples
     if not rows or any(row["partition"] != "train" for row in rows):
         raise ValueError("Scaler fitting accepts training rows only")
     recordings = {}
@@ -17,7 +17,7 @@ def fit_scaler(root, rows, dataset_hash):
         array_path, meta_path = cache_paths(root, recording)
         array, meta = np.load(array_path, mmap_mode="r", allow_pickle=False), read_json(meta_path)
         for start in range(0, end, 65536):
-            block = to_microvolts(array[:, start:min(start + 65536, end)], meta).astype(np.float64)
+            block = np.ascontiguousarray(to_microvolts(cached_samples(array, meta, start, min(start + 65536, end)), meta), dtype=np.float64)
             n = block.shape[1]
             block_mean = block.mean(axis=1)
             delta = block_mean - mean

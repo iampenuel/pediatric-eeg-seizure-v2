@@ -92,6 +92,10 @@ def test_real_edf_roundtrip_scaling_and_recovery(tmp_path):
     highlevel.write_edf(str(source), values, headers, digital=True)
     digest = sha256(source)
     meta = convert_edf(source, tmp_path, "chb02/test.edf", digest, [[1, 2]])
+    cached = np.load(tmp_path / "cache/chb02/test.npy", mmap_mode="r")
+    assert cached.shape == (4096, 18) and cached.dtype == np.int16
+    np.testing.assert_array_equal(cached, values.T)
+    assert meta["cache_layout"] == "samples_channels_v1"
     signal = read_window(tmp_path, "chb02/test.edf", 0, 2048)
     with pyedflib.EdfReader(str(source)) as reader:
         expected = np.vstack([reader.readSignal(i, 0, 2048) for i in range(18)])
@@ -103,3 +107,16 @@ def test_real_edf_roundtrip_scaling_and_recovery(tmp_path):
     assert verified_cache(tmp_path, "chb02/test.edf", digest, [[1, 2]]) is None
     convert_edf(source, tmp_path, "chb02/test.edf", digest, [[1, 2]])
     assert verified_cache(tmp_path, "chb02/test.edf", digest, [[1, 2]])
+
+
+def test_cache_layouts_preserve_calibration_and_window_boundaries(tmp_path):
+    from seizure_v2.data.edf import cached_samples, to_microvolts
+    values = np.random.default_rng(42).integers(-32768, 32768, (18, 6145), dtype=np.int16)
+    meta = {"calibration": [{"scale_uv": .017 * (i + 1), "offset_uv": i - 9.25} for i in range(18)]}
+    time_major = {**meta, "cache_layout": "samples_channels_v1"}
+    for start, end in [(0, 2048), (2048, 4096), (4096, 6144), (6144, 6145)]:
+        old = to_microvolts(cached_samples(values, meta, start, end), meta)
+        new = to_microvolts(cached_samples(values.T.copy(), time_major, start, end), time_major)
+        np.testing.assert_array_equal(old, new)
+    with pytest.raises(ValueError, match="layout"):
+        cached_samples(values, {"cache_layout": "unknown"}, 0, 2048)

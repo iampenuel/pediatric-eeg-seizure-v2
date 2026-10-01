@@ -5,6 +5,8 @@ from seizure_v2.data.channels import CHANNELS, select_channels
 from seizure_v2.data.windows import FS, PREPROCESSING_VERSION, seizure_samples
 from seizure_v2.data.download import BASE_URL, recording_url
 
+CACHE_LAYOUT = "samples_channels_v1"
+
 
 def cache_paths(root, recording):
     base = Path(root) / "cache" / recording.removesuffix(".edf")
@@ -12,7 +14,8 @@ def cache_paths(root, recording):
 
 
 def fingerprint(recording, source_sha, intervals):
-    return object_hash({"recording": recording, "source_sha256": source_sha, "seizures": intervals, "version": PREPROCESSING_VERSION, "channels": CHANNELS})
+    return object_hash({"recording": recording, "source_sha256": source_sha, "seizures": intervals,
+                        "version": PREPROCESSING_VERSION, "channels": CHANNELS, "cache_layout": CACHE_LAYOUT})
 
 
 def verified_cache(root, recording, source_sha, intervals):
@@ -73,20 +76,24 @@ def convert_edf(source, root, recording, source_sha, intervals):
                 raise ValueError("Invalid channel calibration")
             calibration.append({"scale_uv": scale, "offset_uv": offset, "edf_header": header})
         temp = array_path.with_name(array_path.name + ".tmp")
-        array = np.lib.format.open_memmap(temp, mode="w+", dtype=np.int16, shape=(18, n_samples))
-        for target, source_index in enumerate(indices):
-            for start in range(0, n_samples, 262144):
-                size = min(262144, n_samples - start)
+        # Time-major storage makes a random 8-second window one contiguous read.
+        # Model-facing windows retain canonical (18, 2048) channel-first order.
+        array = np.lib.format.open_memmap(temp, mode="w+", dtype=np.int16, shape=(n_samples, 18))
+        for start in range(0, n_samples, 262144):
+            size = min(262144, n_samples - start)
+            block = np.empty((size, 18), dtype=np.int16)
+            for target, source_index in enumerate(indices):
                 values = reader.readSignal(source_index, start, size, digital=True)
                 if len(values) != size or values.min() < -32768 or values.max() > 32767:
                     raise ValueError("Invalid digital samples")
-                array[target, start:start + size] = values
+                block[:, target] = values
+            array[start:start + size] = block
         array.flush()
         del array
         temp.replace(array_path)
         meta.update(status="prepared", n_samples=n_samples, channels=CHANNELS,
                     source_channel_indices=indices, calibration=calibration,
-                    sampling_rate=FS, cache_sha256=sha256(array_path),
+                    sampling_rate=FS, cache_sha256=sha256(array_path), cache_layout=CACHE_LAYOUT,
                     discarded_tail_samples=n_samples % 2048)
         write_json(metadata_path, meta)
         return meta
@@ -98,10 +105,19 @@ def to_microvolts(samples, meta):
     return (samples.astype(np.float64) * scale[:, None] + offset[:, None]).astype(np.float32)
 
 
+def cached_samples(array, meta, start, end):
+    layout = meta.get("cache_layout", "channels_samples_v1")
+    if layout == CACHE_LAYOUT and array.ndim == 2 and array.shape[1] == 18:
+        return array[start:end].T
+    if layout == "channels_samples_v1" and array.ndim == 2 and array.shape[0] == 18:
+        return array[:, start:end]
+    raise ValueError("Unsupported cache layout or channel dimensions")
+
+
 def read_window(root, recording, start, end):
     array_path, metadata_path = cache_paths(root, recording)
     meta = read_json(metadata_path)
     if not 0 <= start < end <= meta["n_samples"]:
         raise ValueError("Window outside recording")
     array = np.load(array_path, mmap_mode="r", allow_pickle=False)
-    return to_microvolts(array[:, start:end], meta)
+    return to_microvolts(cached_samples(array, meta, start, end), meta)

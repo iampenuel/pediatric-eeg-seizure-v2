@@ -44,7 +44,8 @@ def test_macro_counts_chb01_and_21_as_one_person():
     assert len(grouped) == 1 and grouped[0]["n_windows"] == 2
 
 
-def test_scaler_uses_only_complete_training_samples(tmp_path):
+@pytest.mark.parametrize("layout", ["channels_samples_v1", "samples_channels_v1"])
+def test_scaler_uses_only_complete_training_samples(tmp_path, layout):
     from seizure_v2.common import write_json
     from seizure_v2.data.edf import cache_paths
     values = np.tile(np.arange(2048, dtype=np.int16), (18, 1))
@@ -52,8 +53,8 @@ def test_scaler_uses_only_complete_training_samples(tmp_path):
     values = np.concatenate([values, np.full((18, 31), 30000, dtype=np.int16)], axis=1)
     array, metadata = cache_paths(tmp_path, "chb02/example.edf")
     array.parent.mkdir(parents=True)
-    np.save(array, values)
-    write_json(metadata, {"calibration": [{"scale_uv": 2, "offset_uv": 3}] * 18})
+    np.save(array, values if layout == "channels_samples_v1" else values.T.copy())
+    write_json(metadata, {"calibration": [{"scale_uv": 2, "offset_uv": 3}] * 18, "cache_layout": layout})
     rows = [{"partition": "train", "recording": "chb02/example.edf", "end_sample": 2048}]
     fitted = fit_scaler(tmp_path, rows, "fixture")
     expected = np.arange(2048) * 2 + 3

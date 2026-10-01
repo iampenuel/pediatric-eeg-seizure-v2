@@ -5,7 +5,7 @@ from pathlib import Path
 from seizure_v2.common import write_json, read_json, sha256, object_hash
 from seizure_v2.data.download import inventory, download, BASE_URL, recording_url
 from seizure_v2.data.annotations import parse_summary, annotations_for, reconcile_inventory
-from seizure_v2.data.edf import verified_cache, convert_edf, cache_paths
+from seizure_v2.data.edf import verified_cache, convert_edf, cache_paths, CACHE_LAYOUT
 from seizure_v2.data.splits import split_manifest, individual_id, partition_for
 from seizure_v2.data.windows import window_rows, PREPROCESSING_VERSION
 
@@ -100,7 +100,7 @@ def _prepare(root, patients=None, recordings=None, full=False, evict_raw=False, 
               "excluded_duration_seconds": sum(meta["duration_seconds"] for meta in exclusions),
               "excluded_seizure_count": sum(len(meta["seizures"]) for meta in exclusions),
               "cases": sorted(cases), "window_counts": dict(counts), "label_counts": dict(labels),
-              "full_cohort_complete": complete, "preprocessing_version": PREPROCESSING_VERSION,
+              "full_cohort_complete": complete, "preprocessing_version": PREPROCESSING_VERSION, "cache_layout": CACHE_LAYOUT,
               "windows_sha256": sha256(manifests / "windows.csv"), "split_sha256": split_manifest()["sha256"],
               "source_inventory_sha256": sha256(source_dir / "RECORDS"),
               "source_checksums_sha256": sha256(source_dir / "SHA256SUMS.txt"),

@@ -28,6 +28,7 @@ V2 preserves provenance from the source recording to each window, separates indi
 - Label 1 means any positive overlap with an annotated seizure. Time intervals are half-open; incomplete trailing windows are omitted.
 - No windows cross recording gaps. Seizure-free recordings and all eligible evaluation windows are retained.
 - Original int16 samples and physical calibration are cached per recording. Windows are converted to microvolts and normalized on demand.
+- Cache files store contiguous `(samples, 18)` int16 data; loaders return `(18, 2048)` windows. The cache layout is recorded in metadata and fingerprints. Legacy channel-major caches remain readable, but new preparation uses the contiguous layout to avoid scattered disk reads.
 - Training-only channel mean/std, shared by both architectures. No extra filtering in P0.
 - Class-weighted loss uses training counts. No class balancing of validation/test.
 - Seed 42, Adam 0.001, batch 128, at most 20 epochs, early stopping after four epochs without improved validation patient-macro average precision.
