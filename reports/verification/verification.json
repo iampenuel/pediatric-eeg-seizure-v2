@@ -1,8 +1,8 @@
 {
   "purpose": "Implementation verification only; not the final full-cohort experiment",
   "development": true,
-  "offline_tests_passed": 25,
-  "clean_linux_ci": "https://github.com/iampenuel/pediatric-eeg-seizure-v2/actions/runs/36909085749",
+  "offline_tests_passed": 33,
+  "clean_linux_ci": "https://github.com/iampenuel/pediatric-eeg-seizure-v2/actions/runs/36917523329",
   "real_data_recordings": [
     "chb02/chb02_01.edf",
     "chb02/chb02_16.edf",
@@ -35,5 +35,21 @@
   },
   "http_smoke_note": "No trained final artifacts installed; unavailable inference is intentional.",
   "development_training_dataset_hash": "d8bcea3c931addc41b6f5402157f7ea1bf0a500c7d0b827517d4ba179276b464",
-  "recording_accounting_note": "The later recording/exclusion accounting fields change the report hash; window contents and window SHA-256 are unchanged."
+  "recording_accounting_note": "The later recording/exclusion accounting fields change the report hash; window contents and window SHA-256 are unchanged.",
+  "frontend_preview": {
+    "url": "http://127.0.0.1:8765/",
+    "served_by": "FastAPI / uvicorn",
+    "verified": "styled desktop interface, channel toggle, keyboard expansion, honest missing-artifact state",
+    "screenshot": "frontend-localhost.jpg",
+    "mobile_viewport": "requested browser override was not applied to preview; mobile visual verification pending"
+  },
+  "colab_recovery_tests_passed": 8,
+  "storage_policy": "Drive-free; Colab runtime raw/cache; gitignored local recovery/ for verified compact backups",
+  "recovery_transport": {
+    "stage": "transport-check",
+    "bytes": 558,
+    "sha256": "ce4e73d130f46863d3f2631c79a629dade91c9f92b53da9cf66c3627510def72",
+    "local_destination": "recovery/transport-check/latest.tar.gz",
+    "verified": "browser download from Colab; archive and member hashes verified; local folder confirmed gitignored"
+  }
 }
