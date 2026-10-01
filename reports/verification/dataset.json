@@ -1,0 +1,66 @@
+{
+  "annotation_corrections": [
+    {
+      "added": "chb07/chb07_19.edf",
+      "reason": "chb07 summary and SHA256SUMS sidecar inventory agree on chb07_19; RECORDS-WITH-SEIZURES incorrectly lists chb07_18",
+      "removed": "chb07/chb07_18.edf"
+    }
+  ],
+  "cases": [
+    "chb02",
+    "chb05"
+  ],
+  "dataset_hash": "d8bcea3c931addc41b6f5402157f7ea1bf0a500c7d0b827517d4ba179276b464",
+  "excluded_recordings": 0,
+  "exclusions": [],
+  "full_cohort_complete": false,
+  "individuals": [
+    "chb02",
+    "chb05"
+  ],
+  "label_counts": {
+    "train_0": 558,
+    "train_1": 11,
+    "validation_0": 886,
+    "validation_1": 15
+  },
+  "prepared": [
+    {
+      "cache_sha256": "297b50e7f4cd4b4257fec66d986c5cb7a38ec9de68ab0b64d8fdd92792aec5d0",
+      "input_fingerprint": "5723f44421356166081e066ad949a3ef9b0f6a885a456c9c5012fe07c488ba34",
+      "metadata_sha256": "fc7f6063b95f3588794a33177f509a9cd34064620ae5e4fa09ec28b90972f172",
+      "recording": "chb02/chb02_01.edf"
+    },
+    {
+      "cache_sha256": "10dad0c018d0a4980385de10704d16b42e5bfafa2f7ddcf7a4c621092bc35589",
+      "input_fingerprint": "7ff66b5202f231e32f7db1c8fde292515adab34ba8fbc4518d60e6d3c6fe1d8f",
+      "metadata_sha256": "8f61d96076596e637d20f91a2d1245947a66a5ac487a30159104ccb3d41b03f8",
+      "recording": "chb02/chb02_16.edf"
+    },
+    {
+      "cache_sha256": "c9d0d21ff71a7f4d720fd9a6ba9e602deeddac2414e6ed6b86d5e9779bc52d2e",
+      "input_fingerprint": "f96a1300e3fc7300dc452f162a2f8eba8dd188dfd8c865dcb06d3d3cdb471617",
+      "metadata_sha256": "2a4bebe2b04d744d6439fcec447ca2daf90335d89e209406dff3b94f562749fb",
+      "recording": "chb05/chb05_01.edf"
+    },
+    {
+      "cache_sha256": "4b14cb68d9de22fe3b863de1f75ca9a2ef49d5a9b0b7bf0a5c95d81f7ab75ebb",
+      "input_fingerprint": "6c76256847fc9fece0df26e4b3f2b13dc66f980fa3594ca344e294d934d6b79e",
+      "metadata_sha256": "7b670fa293d9cb2bbd78d7f3d4174d4a514dff4173509d6e174d1529c984ddf6",
+      "recording": "chb05/chb05_06.edf"
+    }
+  ],
+  "prepared_recordings": 4,
+  "preprocessing_version": "bipolar18-int16-any-overlap-8s-v1",
+  "source_checksums_sha256": "f1698efeb9fef887e55cedf6eda13386d9a888db663aec48b2aa194b7b753d2b",
+  "source_dataset": "CHB-MIT 1.0.0",
+  "source_inventory_sha256": "72b640d6a3fef4b40de255933d1403823d1655c56f93d69761105a653798fc08",
+  "source_recordings": 686,
+  "source_seizure_recordings": 141,
+  "split_sha256": "3feac96918a40011687f9a553c12be0f89d697fe18733bda2bd88c64b53f2cfc",
+  "window_counts": {
+    "train": 569,
+    "validation": 901
+  },
+  "windows_sha256": "0fdb22dfb987fa93a6d934ad34a3dbc2b298d6b0422f49b933235c2450e3a492"
+}

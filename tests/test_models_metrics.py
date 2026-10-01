@@ -44,6 +44,39 @@ def test_macro_counts_chb01_and_21_as_one_person():
     assert len(grouped) == 1 and grouped[0]["n_windows"] == 2
 
 
+def test_scaler_uses_only_complete_training_samples(tmp_path):
+    from seizure_v2.common import write_json
+    from seizure_v2.data.edf import cache_paths
+    values = np.tile(np.arange(2048, dtype=np.int16), (18, 1))
+    # An incomplete trailing segment must not influence fitted statistics.
+    values = np.concatenate([values, np.full((18, 31), 30000, dtype=np.int16)], axis=1)
+    array, metadata = cache_paths(tmp_path, "chb02/example.edf")
+    array.parent.mkdir(parents=True)
+    np.save(array, values)
+    write_json(metadata, {"calibration": [{"scale_uv": 2, "offset_uv": 3}] * 18})
+    rows = [{"partition": "train", "recording": "chb02/example.edf", "end_sample": 2048}]
+    fitted = fit_scaler(tmp_path, rows, "fixture")
+    expected = np.arange(2048) * 2 + 3
+    np.testing.assert_allclose(fitted["mean_uv"], expected.mean())
+    np.testing.assert_allclose(fitted["std_uv"], expected.std())
+    assert fitted["sample_count_per_channel"] == 2048
+
+
+def test_invalid_resume_preserves_scaler(tmp_path, monkeypatch):
+    import importlib
+    import yaml
+    training = importlib.import_module("seizure_v2.training.train")
+    config = tmp_path / "config.yaml"
+    config.write_text(yaml.safe_dump({"model": "baseline"}))
+    scaler = tmp_path / "scaler.json"
+    scaler.write_text("original frozen scaler")
+    monkeypatch.setattr(training, "audit_dataset", lambda *args, **kwargs: {"dataset_hash": "new"})
+    monkeypatch.setattr(training.torch, "load", lambda *args, **kwargs: {"dataset_hash": "old", "config": {"model": "baseline"}})
+    with pytest.raises(ValueError, match="identical dataset"):
+        training.train(tmp_path, config, tmp_path, resume=True, development=True)
+    assert scaler.read_text() == "original frozen scaler"
+
+
 def test_representatives_include_failures_with_provenance():
     rows = [{"window_id": f"{i}", "recording": f"r{i}", "individual_id": f"p{i}", "label": y} for i,y in enumerate([1,0,0,1])]
     selected = representative(rows, [.9,.1,.8,.2], .5)

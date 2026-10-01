@@ -4,7 +4,7 @@
 
 V2 studies that question using original CHB-MIT EDF recordings, a frozen patient-independent split, a V1-style CNN, and one compact residual CNN. A browser demo makes both successful predictions and failure examples inspectable.
 
-**Status:** implementation and verification in progress. The real-data foundation is verified on two training recordings. Full-cohort GPU training, held-out research results, and the final deployed inference demo are pending. There are no invented final metrics.
+**Status:** the data pipeline, both models, validation selection, reports, export, and API are implemented. Local tests and clean Linux CI pass. Real-data development runs exercised preparation, both architectures, freezing, validation reports, and frozen-run resume. Full-cohort GPU training, held-out research results, and the final deployed inference demo are pending. There are no invented final metrics.
 
 [Open the full-cohort Colab workflow](https://colab.research.google.com/github/iampenuel/pediatric-eeg-seizure-v2/blob/main/notebooks/colab_full_cohort.ipynb) · [Original V1](https://github.com/iampenuel/pediatric-seizure-cnn) · [PhysioNet source](https://physionet.org/content/chbmit/1.0.0/)
 
@@ -47,7 +47,23 @@ seizure-v2 prepare --root data --recordings chb02/chb02_01.edf chb02/chb02_16.ed
 
 The real-data check produces **569 windows: 558 non-seizure and 11 seizure-positive**. The seizure in `chb02_16.edf` spans 130–212 seconds; the positive windows span 128–216 seconds. These are data-pipeline counts, not model-performance results.
 
+Run the same preparation command again to verify cache reuse. `reports/verification/` contains the small development manifests and verification record. Two additional validation recordings (`chb05_01` and `chb05_06`) were used only to test the training/reporting commands. No test individuals were used in local model development.
+
+```bash
+python -m pip install --no-cache-dir -e '.[data,train,export,serve,test]'
+python -m pytest -q
+seizure-v2 prepare --root data --recordings chb05/chb05_01.edf chb05/chb05_06.edf --mirror s3 --workers 2 --evict-raw
+seizure-v2 train --root data --config configs/baseline.yaml --output runs/development/baseline --development --epochs 1 --num-workers 0 --device cpu
+seizure-v2 train --root data --config configs/improved.yaml --output runs/development/residual --development --epochs 1 --num-workers 0 --device cpu
+seizure-v2 freeze --runs runs/development/baseline runs/development/residual --output runs/development/study.json --development
+seizure-v2 evaluate --root data --study runs/development/study.json --output runs/development/reports --validation-only --device cpu
+```
+
+Development artifacts cannot produce final test reports or a publishable demo bundle. Add `--resume` to the identical training command after interruption; a completed frozen run returns its verified original result. Use new output directories for a new experiment. The local dependency snapshot is `requirements-lock.txt`; actual GPU environment versions are recorded separately. On cloud-synced macOS folders, keep the virtual environment outside the synced folder to avoid filesystem offloading delays.
+
 The full-cohort notebook runs the same package and commands, with bounded parallel downloads from PhysioNet's official S3 mirror and raw staging-file eviction after verified conversion. It stores checkpoints and small research artifacts on Drive; EEG caches stay on the runtime disk. Full-cohort execution is not yet claimed as verified.
+
+The full workflow command is `python scripts/run_study.py --data /content/chbmit-v2 --output /content/drive/MyDrive/pediatric-eeg-seizure-v2/full-seed42`. It requires a CUDA GPU and all 23 individuals. Large signal arrays and expanded release clips stay under `--data`; Drive receives compact provenance, compressed manifests, model checkpoints, reports, and one compressed demo release. Do not point `--data` at Drive.
 
 ## Source audit and exclusions
 

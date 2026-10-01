@@ -1,5 +1,6 @@
 import shutil
 import tarfile
+import tempfile
 from pathlib import Path
 import numpy as np
 import torch
@@ -30,6 +31,21 @@ def export_onnx(model, path, reference_inputs):
 
 
 def build_bundle(root, study, reports, output):
+    output = Path(output)
+    if output.exists() and any(output.iterdir()):
+        raise ValueError("Bundle destination must be empty")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    # A failed export never advertises a completed release or blocks a retry.
+    with tempfile.TemporaryDirectory(prefix=".bundle-", dir=output.parent) as temporary:
+        stage = Path(temporary) / "demo"
+        result = _build_bundle(root, study, reports, stage)
+        archive = output.with_suffix(".tar.gz")
+        stage.with_suffix(".tar.gz").replace(archive)
+        stage.replace(output)
+    return {**result, "bundle": str(output), "archive": str(archive)}
+
+
+def _build_bundle(root, study, reports, output):
     spec = verify_study(study)
     if spec["development"]:
         raise ValueError("Only a final full-cohort study can be published")

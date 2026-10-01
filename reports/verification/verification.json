@@ -1,0 +1,29 @@
+{
+  "purpose": "Implementation verification only; not the final full-cohort experiment",
+  "development": true,
+  "offline_tests_passed": 23,
+  "clean_linux_ci": "https://github.com/iampenuel/pediatric-eeg-seizure-v2/actions/runs/36909085749",
+  "real_data_recordings": [
+    "chb02/chb02_01.edf",
+    "chb02/chb02_16.edf",
+    "chb05/chb05_01.edf",
+    "chb05/chb05_06.edf"
+  ],
+  "chb02_16_positive_windows": 11,
+  "positive_span_seconds": [
+    128,
+    216
+  ],
+  "first_milestone_training_windows": 569,
+  "second_preparation_run": "both first-milestone recordings reused verified cache",
+  "local_commands_verified": [
+    "prepare selective",
+    "train baseline --development --epochs 1",
+    "train residual --development --epochs 1",
+    "freeze --development",
+    "evaluate --validation-only",
+    "train baseline --resume (frozen output identical)"
+  ],
+  "scaler_fit_partition": "train",
+  "results_are_final": false
+}
