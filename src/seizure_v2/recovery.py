@@ -25,6 +25,11 @@ def eligible(path):
         return len(parts) == 2 and parts[1] in {
             "best.pt", "last.pt", "scaler.json", "run.json", "history.json", "frozen.json"}
     if parts[0] == "manifests":
+        if len(parts) == 4 and parts[1] == "recording-metadata":
+            return Path(path).suffix == ".json"
+        if parts[1] == "source-metadata":
+            return ((len(parts) == 3 and parts[2] in {"SHA256SUMS.txt", "RECORDS", "RECORDS-WITH-SEIZURES"})
+                    or (len(parts) == 4 and parts[3] == parts[2] + "-summary.txt"))
         return len(parts) == 2 and parts[1] in {
             "dataset.json", "split.json", "recordings.csv", "exclusions.csv", "windows.csv.gz"}
     return parts[0] in {"reports", "environments"} and Path(path).suffix in {

@@ -16,9 +16,15 @@ def test_compact_roundtrip_and_tampering(tmp_path):
     (run / "cache/large.npy").write_bytes(b"excluded")
     (run / "raw.edf").write_bytes(b"excluded")
     (run / "demo.tar.gz").write_bytes(b"separately-distributed")
+    (run / "manifests/recording-metadata/chb02").mkdir(parents=True)
+    (run / "manifests/recording-metadata/chb02/chb02_01.json").write_text('{"calibration":[],"source_channel_indices":[]}')
+    (run / "manifests/source-metadata/chb02").mkdir(parents=True)
+    (run / "manifests/source-metadata/chb02/chb02-summary.txt").write_text("verified annotations")
     event = snapshot(run, tmp_path / "snapshot.tar.gz", "baseline-epoch-01")
     manifest = inspect_archive(event["path"], event["sha256"])
-    assert set(manifest["files"]) == {"baseline/last.pt", "baseline/scaler.json"}
+    assert set(manifest["files"]) == {"baseline/last.pt", "baseline/scaler.json",
+        "manifests/recording-metadata/chb02/chb02_01.json",
+        "manifests/source-metadata/chb02/chb02-summary.txt"}
     target = tmp_path / "restored"
     restore(event["path"], event["sha256"], target)
     assert (target / "baseline/last.pt").read_bytes() == b"optimizer-and-rng-state"

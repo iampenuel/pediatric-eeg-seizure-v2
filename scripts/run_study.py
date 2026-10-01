@@ -8,6 +8,8 @@ import shutil
 import subprocess
 import sys
 from seizure_v2.recovery import checkpoint
+from seizure_v2.common import read_json
+from seizure_v2.data.edf import cache_paths
 
 
 def run(*args):
@@ -23,6 +25,12 @@ def main():
     args = parser.parse_args()
     output = Path(args.output)
     output.mkdir(parents=True, exist_ok=True)
+    import fcntl
+    study_lock = (output / ".study.lock").open("a")
+    try:
+        fcntl.flock(study_lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError as error:
+        raise RuntimeError("Another study process is already using this output directory") from error
     if args.interactive_backups:
         os.environ["EEG_RECOVERY_ROOT"] = str(output.resolve())
         os.environ["EEG_RECOVERY_DIR"] = str(output.resolve().parent / "recovery-staging")
@@ -40,6 +48,18 @@ def main():
     manifests.mkdir(exist_ok=True)
     for name in ["dataset.json", "split.json", "recordings.csv", "exclusions.csv"]:
         shutil.copyfile(Path(args.data) / "manifests" / name, manifests / name)
+    dataset = read_json(manifests / "dataset.json")
+    for entry in dataset["prepared"] + dataset["exclusions"]:
+        metadata = cache_paths(args.data, entry["recording"])[1]
+        target = manifests / "recording-metadata" / Path(entry["recording"]).with_suffix(".json")
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(metadata, target)
+    source_names = ["SHA256SUMS.txt", "RECORDS", "RECORDS-WITH-SEIZURES"] + [
+        f"chb{i:02d}/chb{i:02d}-summary.txt" for i in range(1, 25)]
+    for name in source_names:
+        target = manifests / "source-metadata" / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(Path(args.data) / "source_metadata" / name, target)
     with (Path(args.data) / "manifests/windows.csv").open("rb") as source:
         with gzip.open(manifests / "windows.csv.gz", "wb") as destination:
             shutil.copyfileobj(source, destination)
