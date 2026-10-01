@@ -1,7 +1,7 @@
 {
   "purpose": "Implementation verification only; not the final full-cohort experiment",
   "development": true,
-  "offline_tests_passed": 23,
+  "offline_tests_passed": 25,
   "clean_linux_ci": "https://github.com/iampenuel/pediatric-eeg-seizure-v2/actions/runs/36909085749",
   "real_data_recordings": [
     "chb02/chb02_01.edf",
@@ -33,5 +33,7 @@
     "/healthz": 503,
     "/api/examples": 503
   },
-  "http_smoke_note": "No trained final artifacts installed; unavailable inference is intentional."
+  "http_smoke_note": "No trained final artifacts installed; unavailable inference is intentional.",
+  "development_training_dataset_hash": "d8bcea3c931addc41b6f5402157f7ea1bf0a500c7d0b827517d4ba179276b464",
+  "recording_accounting_note": "The later recording/exclusion accounting fields change the report hash; window contents and window SHA-256 are unchanged."
 }

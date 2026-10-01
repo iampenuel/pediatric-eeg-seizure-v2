@@ -10,8 +10,10 @@
     "chb02",
     "chb05"
   ],
-  "dataset_hash": "d8bcea3c931addc41b6f5402157f7ea1bf0a500c7d0b827517d4ba179276b464",
+  "dataset_hash": "5b6132d43d1786e4c2682b704d0122cf1776d581ce03cbc709a6ace22d908fa3",
+  "excluded_duration_seconds": 0,
   "excluded_recordings": 0,
+  "excluded_seizure_count": 0,
   "exclusions": [],
   "full_cohort_complete": false,
   "individuals": [
