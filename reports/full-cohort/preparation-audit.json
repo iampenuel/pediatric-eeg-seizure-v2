@@ -1,9 +1,9 @@
 {
   "stage": "full-cohort-prepared-and-audited",
-  "created_utc": "2026-10-01T20:38:31.784518+00:00",
-  "git_commit": "41f97c35b30bdbcf4e7461af1691161858359c21",
-  "recovery_sha256": "e15d40a83f36133b17f209ea410da85b2dea8926b8d45bd4a08b79b8d9f200a0",
-  "dataset_hash": "a7ccc4297e5df67c0ee8c341dcf8ddb6c219f62cc6913caa5d362c0d47c3b8d8",
+  "created_utc": "2026-10-01T23:27:29.161882+00:00",
+  "git_commit": "cbc5ff8c750df256a5618cba70c357e17bfb8ac5",
+  "recovery_sha256": "c11a3b6dd350f941f88377a4e7b1079424c56cd53ea83d89c79c0d527dfa7fac",
+  "dataset_hash": "a22541746f9adf856c807d970dfc84ee307a23559831613430cbd184c0cf8c33",
   "source_recordings": 686,
   "prepared_recordings": 683,
   "excluded_recordings": 3,
@@ -92,5 +92,8 @@
     "compact_files": 720,
     "recording_metadata_files": 686,
     "raw_or_cache_arrays_present": false
-  }
+  },
+  "cache_layout": "samples_channels_v1",
+  "windows_identical_to_prior_preparation": true,
+  "previous_preparation_recovery_sha256": "e15d40a83f36133b17f209ea410da85b2dea8926b8d45bd4a08b79b8d9f200a0"
 }

@@ -7,9 +7,11 @@
   "local_recovery_restore_verified_files": 720,
   "new_runtime_revision": "cbc5ff8c750df256a5618cba70c357e17bfb8ac5",
   "new_runtime": "T4, runtime version 2026.07, Python 3.12",
-  "rebuild_status": "Full-cohort preparation restarted after 38 Colab tests passed",
+  "rebuild_status": "Full-cohort preparation, cache integrity audit, independent local manifest audit and compact restore check passed",
   "storage_change": "New caches store (samples,18) int16 rather than (18,samples). Metadata/fingerprints/cache hashes explicitly record the layout. Model input remains (18,2048).",
   "scientific_protocol_changed": false,
   "held_out_prediction_evaluation_started": false,
-  "next_check": "Compare rebuilt windows.csv SHA256 with 7b8a1f122f6a93ce10c0124ff9732789246c030aabb402aa7349671c873988b9 before training"
+  "rebuilt_recovery_sha256": "c11a3b6dd350f941f88377a4e7b1079424c56cd53ea83d89c79c0d527dfa7fac",
+  "rebuilt_dataset_hash": "a22541746f9adf856c807d970dfc84ee307a23559831613430cbd184c0cf8c33",
+  "rebuilt_window_manifest_identical": true
 }

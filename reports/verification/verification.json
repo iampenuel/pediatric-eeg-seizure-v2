@@ -2,7 +2,7 @@
   "purpose": "Implementation verification only; not the final full-cohort experiment",
   "development": true,
   "offline_tests_passed": 38,
-  "clean_linux_ci": "https://github.com/iampenuel/pediatric-eeg-seizure-v2/actions/runs/36937680716",
+  "clean_linux_ci": "https://github.com/iampenuel/pediatric-eeg-seizure-v2/actions/runs/36939042298",
   "real_data_recordings": [
     "chb02/chb02_01.edf",
     "chb02/chb02_16.edf",
@@ -55,5 +55,18 @@
     "verified": "browser download from Colab; archive and member hashes verified; local folder confirmed gitignored"
   },
   "io_equivalence": "io-equivalence.json",
-  "colab_offline_tests_passed": 38
+  "colab_offline_tests_passed": 38,
+  "serve_only_clean_environment": {
+    "git_commit": "a7d261dec994b4db23aabeb17c0c7fb091ccb855",
+    "python": "3.12",
+    "install": "pip install -e '.[serve]'",
+    "verification": "python scripts/smoke_serve.py --require-lean",
+    "result": "passed",
+    "excluded_dependencies": [
+      "torch",
+      "pyedflib",
+      "scikit-learn",
+      "matplotlib"
+    ]
+  }
 }
