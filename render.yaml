@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: pediatric-eeg-seizure-v2
+    runtime: python
+    plan: free
+    buildCommand: pip install -e '.[serve]' && python scripts/fetch_artifacts.py
+    startCommand: uvicorn web.backend.app:app --host 0.0.0.0 --port $PORT --workers 1
+    healthCheckPath: /api/research
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.10
+      - key: SEIZURE_BUNDLE
+        value: artifacts/demo

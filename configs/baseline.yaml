@@ -1,0 +1,8 @@
+model: baseline
+seed: 42
+learning_rate: 0.001
+batch_size: 128
+max_epochs: 20
+patience: 4
+num_workers: 2
+threshold_step: 0.001
