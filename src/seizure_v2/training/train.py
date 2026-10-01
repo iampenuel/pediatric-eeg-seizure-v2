@@ -1,5 +1,6 @@
 import importlib.metadata
 import os
+import platform
 from pathlib import Path
 import random
 import subprocess
@@ -69,6 +70,18 @@ def train(root, config, output, resume=False, development=False, epochs=None, de
         raise ValueError("Run is frozen; use a new run directory")
     if (output / "last.pt").exists() and not resume:
         raise ValueError("Existing run; explicitly resume or use a new directory")
+    state = None
+    if resume:
+        state = torch.load(output / "last.pt", map_location="cpu", weights_only=False)
+        if state["dataset_hash"] != report["dataset_hash"] or state["config"] != cfg:
+            raise ValueError("Resume requires identical dataset and configuration")
+        if read_json(output / "run.json")["development"] != development:
+            raise ValueError("Cannot change a run's development status")
+        if (output / "frozen.json").exists():
+            frozen = read_json(output / "frozen.json")
+            if sha256(output / "best.pt") != frozen["checkpoint_sha256"] or sha256(output / "scaler.json") != frozen["scaler_sha256"]:
+                raise ValueError("Frozen artifacts changed")
+            return frozen
     output.mkdir(parents=True, exist_ok=True)
     train_rows, val_rows = load_rows(root, "train"), load_rows(root, "validation")
     if not train_rows or not val_rows:
@@ -94,10 +107,7 @@ def train(root, config, output, resume=False, development=False, epochs=None, de
     train_loader = DataLoader(WindowDataset(root, train_rows, scaler), shuffle=True, generator=generator, **loader_options)
     val_loader = DataLoader(WindowDataset(root, val_rows, scaler), shuffle=False, **loader_options)
     start, best, stale, history = 0, -1., 0, []
-    if resume:
-        state = torch.load(output / "last.pt", map_location="cpu", weights_only=False)
-        if state["dataset_hash"] != report["dataset_hash"] or state["config"] != cfg:
-            raise ValueError("Resume requires identical dataset and configuration")
+    if state is not None:
         model.load_state_dict(state["model_state"])
         optimizer.load_state_dict(state["optimizer"])
         for value in optimizer.state.values():
@@ -115,6 +125,9 @@ def train(root, config, output, resume=False, development=False, epochs=None, de
     git = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True)
     run = {"config": cfg, "dataset_hash": report["dataset_hash"], "split_sha256": report["split_sha256"],
            "development": development, "device": str(device), "versions": versions,
+           "hardware": {"platform": platform.platform(), "python": platform.python_version(),
+                        "cpu_count": os.cpu_count(), "cuda_version": torch.version.cuda,
+                        "gpu": torch.cuda.get_device_name(device) if device.type == "cuda" else None},
            "git_commit": git.stdout.strip() or "uncommitted", "pos_weight": weight,
            "parameter_count": sum(p.numel() for p in model.parameters()),
            "determinism": "seeded; deterministic algorithms requested with warnings; cross-device bitwise identity is not guaranteed"}

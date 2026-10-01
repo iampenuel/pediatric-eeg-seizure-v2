@@ -23,7 +23,7 @@ def main():
     for name, config in [("baseline", "configs/baseline.yaml"), ("residual", "configs/improved.yaml")]:
         destination = output / name
         if not (destination / "frozen.json").exists():
-            command = [*cli, "train", "--root", args.data, "--config", config, "--output", destination]
+            command = [*cli, "train", "--root", args.data, "--config", config, "--output", destination, "--device", "cuda"]
             if (destination / "last.pt").exists():
                 command.append("--resume")
             run(*command)
