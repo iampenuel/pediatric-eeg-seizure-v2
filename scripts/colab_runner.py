@@ -1,6 +1,8 @@
 """Run inside a Colab notebook: browser downloads replace Google Drive persistence."""
 import json
+import os
 from pathlib import Path
+import signal
 import subprocess
 import sys
 
@@ -11,7 +13,7 @@ def run_with_downloads(data="/content/chbmit-v2", output="/content/eeg-v2-run/fu
     command = [sys.executable, "scripts/run_study.py", "--data", data,
                "--output", output, "--interactive-backups"]
     process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                               stderr=subprocess.STDOUT, text=True, bufsize=1)
+                               stderr=subprocess.STDOUT, text=True, bufsize=1, start_new_session=True)
     try:
         for line in process.stdout:
             print(line, end="", flush=True)
@@ -38,7 +40,9 @@ def run_with_downloads(data="/content/chbmit-v2", output="/content/eeg-v2-run/fu
             files.download(str(release))
     finally:
         if process.poll() is None:
-            process.terminate()
+            # Stop the training/download children as well as their orchestrator.
+            # Otherwise rerunning an interrupted cell could leave an orphan writer.
+            os.killpg(process.pid, signal.SIGTERM)
             process.wait()
 
 
