@@ -138,7 +138,7 @@ def train(root, config, output, resume=False, development=False, epochs=None, de
         {**{key: saved_run[key] for key in provenance_fields}, "first_epoch": 1}])
     run["execution_segments"] = [*previous_segments,
         {**{key: run[key] for key in provenance_fields}, "first_epoch": start + 1,
-         "shuffled_cache_io": "MADV_RANDOM when supported; signal tensors and order unchanged"}]
+         "shuffled_cache_io": "Normal read-ahead for contiguous time-major caches; MADV_RANDOM when supported for legacy channel-major caches; signal tensors and order unchanged"}]
     write_json(output / "run.json", run)
     for epoch in range(start, cfg["max_epochs"]):
         if stale >= cfg["patience"]:

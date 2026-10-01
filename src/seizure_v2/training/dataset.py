@@ -10,9 +10,11 @@ from seizure_v2.data.normalization import normalize
 def open_window_cache(path, random_access=False):
     array = np.load(path, mmap_mode="r", allow_pickle=False)
     mapping = getattr(array, "_mmap", None)
-    if random_access and hasattr(mapping, "madvise") and hasattr(mmap, "MADV_RANDOM"):
-        # Avoid fetching unused sequential regions for shuffled windows.
-        # This also limits read-ahead for legacy channel-major caches.
+    legacy_channel_major = array.ndim == 2 and array.shape[0] == 18
+    if random_access and legacy_channel_major and hasattr(mapping, "madvise") and hasattr(mmap, "MADV_RANDOM"):
+        # Legacy caches scatter one window over 18 distant channel regions.
+        # Contiguous time-major windows benefit from normal read-ahead; forcing
+        # MADV_RANDOM there turns a window into many small page-fault reads.
         # This is an optional OS I/O hint; it does not modify samples or ordering.
         try:
             mapping.madvise(mmap.MADV_RANDOM)

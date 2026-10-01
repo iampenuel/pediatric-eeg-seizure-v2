@@ -1,0 +1,28 @@
+{
+  "purpose": "Training-cache I/O comparison at the paused baseline epoch-1 checkpoint; no model updates or held-out predictions",
+  "runtime": "Colab T4, Python 3.12, contiguous samples_channels_v1 cache",
+  "training_windows": 256,
+  "order_seed": 1729,
+  "page_eviction": "POSIX_FADV_DONTNEED requested for selected window pages before each pass; advisory only, not a guarantee of fully cold device caches",
+  "results_seconds_rounded": [
+    {
+      "random_advice": true,
+      "seconds": 1.907
+    },
+    {
+      "random_advice": false,
+      "seconds": 0.578
+    },
+    {
+      "random_advice": false,
+      "seconds": 0.576
+    },
+    {
+      "random_advice": true,
+      "seconds": 1.581
+    }
+  ],
+  "identical_normalized_tensors_and_labels_sha256": "270f4ce6a9311ad233bb8191e592cc1f75382c3ebbeaa4567fc6e5f5b6319db1",
+  "decision": "Use normal read-ahead for contiguous caches; retain MADV_RANDOM for legacy channel-major caches. Resume the saved epoch checkpoint with unchanged data, model, hyperparameters and random-number state.",
+  "limitation": "Small cache-reader benchmark; not an end-to-end epoch speedup claim. Full-precision report retained with run recovery artifacts."
+}

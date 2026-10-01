@@ -78,7 +78,8 @@ def test_invalid_resume_preserves_scaler(tmp_path, monkeypatch):
     assert scaler.read_text() == "original frozen scaler"
 
 
-def test_random_io_hint_preserves_shuffled_windows_and_source(tmp_path):
+@pytest.mark.parametrize("layout", ["channels_samples_v1", "samples_channels_v1"])
+def test_random_io_hint_preserves_shuffled_windows_and_source(tmp_path, layout):
     from seizure_v2.common import write_json, sha256
     from seizure_v2.data.edf import cache_paths
     from seizure_v2.data.channels import CHANNELS
@@ -89,8 +90,8 @@ def test_random_io_hint_preserves_shuffled_windows_and_source(tmp_path):
         array, metadata = cache_paths(tmp_path, recording)
         array.parent.mkdir(parents=True, exist_ok=True)
         values = np.random.default_rng(number).integers(-32768, 32768, (18, 4096), dtype=np.int16)
-        np.save(array, values)
-        write_json(metadata, {"calibration": [{"scale_uv": .13, "offset_uv": -2.5}] * 18})
+        np.save(array, values if layout == "channels_samples_v1" else values.T.copy())
+        write_json(metadata, {"calibration": [{"scale_uv": .13, "offset_uv": -2.5}] * 18, "cache_layout": layout})
         rows += [{"recording": recording, "start_sample": start, "end_sample": start + 2048,
                   "label": number % 2} for start in [0, 2048]]
     scaler = {"channels": CHANNELS, "fit_partition": "train", "mean_uv": [1.] * 18, "std_uv": [37.] * 18}
