@@ -4,9 +4,9 @@
 
 V2 studies that question using original CHB-MIT EDF recordings, a frozen patient-independent split, a V1-style CNN, and one compact residual CNN. A browser demo makes both successful predictions and failure examples inspectable.
 
-**Status:** the data pipeline, both models, validation selection, reports, export, and API are implemented. All 686 source recordings are accounted for in the verified Colab preparation: 683 eligible recordings, three disclosed montage exclusions, and all 23 individuals. After a Colab runtime reset before the first completed epoch, all caches were rebuilt with contiguous window storage. The rebuilt window manifest is byte-identical to the first preparation, and its compact backup has been downloaded, hash-verified, and restore-tested locally. GPU training is in progress; held-out research results and the final deployed inference demo remain pending. Local tests and clean Linux CI pass. There are no invented final metrics.
+**Status:** the frozen full-cohort experiment and [public inference demo](https://pediatric-eeg-seizure-v2.onrender.com/) are complete and verified. Both models were trained and frozen before held-out evaluation. After the first evaluation artifacts were lost with an expired Colab runtime, the reports and demo were **regenerated on 2026-10-02 from the original frozen models and protocol**. No weights, scaler, threshold, split, preprocessing, architecture, hyperparameters, or model-selection decision changed. Every source/cache/manifest equivalence check passed before evaluation. Final artifacts were downloaded and hash-verified locally before website integration. The compact verified deployment bundle is published as [GitHub Release v2.0.0](https://github.com/iampenuel/pediatric-eeg-seizure-v2/releases/tag/v2.0.0). The [public Render service](https://pediatric-eeg-seizure-v2.onrender.com/) passed real-artifact API and browser verification on 2026-10-02.
 
-[Open the full-cohort Colab workflow](https://colab.research.google.com/github/iampenuel/pediatric-eeg-seizure-v2/blob/main/notebooks/colab_full_cohort.ipynb) · [Original V1](https://github.com/iampenuel/pediatric-seizure-cnn) · [PhysioNet source](https://physionet.org/content/chbmit/1.0.0/)
+[Try the public demo](https://pediatric-eeg-seizure-v2.onrender.com/) · [Verified release](https://github.com/iampenuel/pediatric-eeg-seizure-v2/releases/tag/v2.0.0) · [Open the full-cohort Colab workflow](https://colab.research.google.com/github/iampenuel/pediatric-eeg-seizure-v2/blob/main/notebooks/colab_full_cohort.ipynb) · [Original V1](https://github.com/iampenuel/pediatric-seizure-cnn) · [PhysioNet source](https://physionet.org/content/chbmit/1.0.0/)
 
 ## What changed from V1
 
@@ -35,6 +35,70 @@ V2 preserves provenance from the source recording to each window, separates indi
 - Each threshold maximizes validation patient-macro F1 on a 0.001 grid; ties select the higher threshold.
 - The demo default is chosen by validation patient-macro AP, never by test performance.
 
+## Verified frozen results
+
+These held-out metrics were regenerated from the original frozen experiment after loss of the first evaluation artifacts. This was evaluation-only recovery, not a new model-selection run.
+
+**Validation selection** (51,969 windows, 287 positive; four individuals):
+
+| Model | Selected epoch | Validation patient-macro AP | Validation patient-macro F1 | Frozen threshold |
+|---|---|---|---|---|
+| baseline | 11 | 0.582622 | 0.359526 | 0.999 |
+| residual | 13 | 0.572549 | 0.343287 | 0.927 |
+
+The baseline remains the demo default because its validation patient-macro AP was higher. Training originally stopped after 15 baseline epochs and 17 residual epochs; the selected weights remain epochs 11 and 13.
+
+**Final held-out test**: 147,727 windows, 210 positive and 147,517 negative; prevalence 0.142154%; 328.2822 evaluated hours. All eligible test windows were retained. Four canonical individuals are tested: chb01 (including chb21), chb04, chb09, chb22.
+
+Pooled window metrics:
+
+| Model | Accuracy | Sensitivity | Specificity | Precision | F1 | AUROC | AUPRC / AP |
+|---|---|---|---|---|---|---|---|
+| baseline | 0.988025 | 0.461905 | 0.988774 | 0.055334 | 0.098828 | 0.934473 | 0.159392 |
+| residual | 0.950997 | 0.747619 | 0.951287 | 0.021381 | 0.041573 | 0.947571 | 0.404811 |
+
+Confusion counts use `[[TN, FP], [FN, TP]]`: baseline `[[145861, 1656], [113, 97]]`; residual `[[140331, 7186], [53, 157]]`.
+
+Patient-macro metrics (equal weight per individual, mean over defined values):
+
+| Model | Accuracy | Sensitivity | Specificity | Precision | F1 | AUROC | AUPRC / AP |
+|---|---|---|---|---|---|---|---|
+| baseline | 0.987332 | 0.503481 | 0.988238 | 0.503859 | 0.296169 | 0.966449 | 0.568545 |
+| residual | 0.943848 | 0.770959 | 0.944201 | 0.323532 | 0.344061 | 0.969320 | 0.607172 |
+
+Every held-out individual:
+
+| Model | Individual | Windows | Positive | Sensitivity | Specificity | Precision | F1 | AP |
+|---|---|---|---|---|---|---|---|---|
+| baseline | chb01 (+chb21) | 33,019 | 90 | 0.333333 | 0.999939 | 0.937500 | 0.491803 | 0.601530 |
+| baseline | chb04 | 70,222 | 52 | 0.403846 | 0.994428 | 0.050971 | 0.090517 | 0.066370 |
+| baseline | chb09 | 30,535 | 39 | 0.897436 | 0.958585 | 0.026965 | 0.052356 | 0.802225 |
+| baseline | chb22 | 13,951 | 29 | 0.379310 | 1.000000 | 1.000000 | 0.550000 | 0.804055 |
+| residual | chb01 (+chb21) | 33,019 | 90 | 0.677778 | 0.995991 | 0.316062 | 0.431095 | 0.594494 |
+| residual | chb04 | 70,222 | 52 | 0.750000 | 0.990623 | 0.055954 | 0.104139 | 0.134768 |
+| residual | chb09 | 30,535 | 39 | 0.897436 | 0.790333 | 0.005444 | 0.010823 | 0.868803 |
+| residual | chb22 | 13,951 | 29 | 0.758621 | 0.999856 | 0.916667 | 0.830189 | 0.830623 |
+
+Precision is low because the false-positive burden remains substantial, despite high aggregate accuracy. The residual model has higher test recall and AP but many more false positives, especially in chb09. The baseline misses all 27 positive chb21 windows at its frozen threshold; chb21 is a case breakdown of the same individual as chb01. No model, threshold, or default was changed after these observations. Event sensitivity, false alarms/hour, calibration, and external clinical validation were not evaluated.
+
+The [versioned demo release](https://github.com/iampenuel/pediatric-eeg-seizure-v2/releases/tag/v2.0.0) contains full-precision pooled, patient-macro, per-patient, and per-case metrics in `manifest.json`, the frozen `study.json`, two ONNX models, frozen scalers, 29 attributed curated clips, and file hashes. Detailed ROC/PR data and figures, per-window predictions, original checkpoints, and recovery archives remain in the local research audit; they are not deployment assets and are not published in this release.
+
+The 29 deduplicated held-out demo clips passed 58 model/example HTTP checks locally and on the public Render service. Public ONNX inference matched all 928 saved evaluation scores within `1.8342157753e-6`, with identical classifications, labels, thresholds, and source provenance. All 928 context-window scores agreed with saved PyTorch evaluation outputs within `1.8194589856e-6` (required `1e-5`), with identical classifications and labels. Independent CPU export checks on 32 validation windows per model had maximum errors `6.0355e-8` (baseline) and `1.5975e-7` (residual). The desktop and 390-pixel mobile interfaces were checked with both models and all four example categories. The frontend source is published at `59fa633eb368afe7991a69ec4571b25f8db0d5ba`; [clean Linux CI](https://github.com/iampenuel/pediatric-eeg-seizure-v2/actions/runs/37033458329) passed all 40 tests in 4.09 seconds and the lean serving HTTP smoke. The deployment-time local data/download/recovery subset passed 22 tests; browser and real-bundle checks are separate from unit tests.
+
+Frozen experiment / evaluation code: `a20161cfecf112a874800c6a5bea4b314ccd6d71`. Baseline epoch 1 used `cbc5ff8c750df256a5618cba70c357e17bfb8ac5`; later training used the recorded I/O-only change with identical tensors. The experiment used Python 3.12.13, NumPy 2.0.2, PyEDFlib 0.1.42, PyTorch 2.11.0+cu128, scikit-learn 1.6.1, and a Tesla T4; complete package/hardware records are retained in the local audit.
+
+| Frozen identifier | SHA-256 |
+|---|---|
+| Dataset | `a22541746f9adf856c807d970dfc84ee307a23559831613430cbd184c0cf8c33` |
+| Window manifest | `7b8a1f122f6a93ce10c0124ff9732789246c030aabb402aa7349671c873988b9` |
+| Split (canonical object) | `3feac96918a40011687f9a553c12be0f89d697fe18733bda2bd88c64b53f2cfc` |
+| Shared scaler | `ae7d8f960c56b359fa0ecfb8425a95137b44375a2e37fba50450865e8fb10414` |
+| Baseline checkpoint | `4ad0c5b57599f7a311125b1bb43e5fa5660fbd68e778a208d9171fde13b4e5ac` |
+| Residual checkpoint | `bbe9bdd0186b87232f433cd4469f98c8335356fd6927d2d7609bbba830ad8c45` |
+| Final demo archive | `53d0aedd5f73a0cf11fbb99d967c78706cd95461020ac77c51d273ac7d5fe7d5` |
+
+For evaluation-only recovery, verify every recovery member first, restore into a new runtime directory, check out the recorded revision and matching environment, rebuild runtime-only caches, and require identical source/cache/metadata/window/split/config/scaler/checkpoint hashes and counts before `seizure-v2 evaluate`. The orchestration and equivalence receipt are preserved under `recovery/full-seed42/`. Do not run training, freezing, scaler fitting, or threshold selection to reproduce these reports.
+
 ## Verified local data quickstart
 
 Use Python 3.12 on macOS or Linux. Raw data and generated artifacts are ignored by Git.
@@ -62,7 +126,7 @@ seizure-v2 evaluate --root data --study runs/development/study.json --output run
 
 Development artifacts cannot produce final test reports or a publishable demo bundle. Add `--resume` to the identical training command after interruption; a completed frozen run returns its verified original result. Use new output directories for a new experiment. The local dependency snapshot is `requirements-lock.txt`; actual GPU environment versions are recorded separately. On cloud-synced macOS folders, keep the virtual environment outside the synced folder to avoid filesystem offloading delays.
 
-The full-cohort notebook uses bounded parallel downloads from PhysioNet's official S3 mirror and evicts downloader-owned raw staging files after verified conversion. Raw EEG, caches, and expanded demo clips stay on the **Colab runtime disk**. No Google Drive mount or access is used. Preparation and cache integrity auditing have passed; the complete training/evaluation workflow is still being exercised.
+The full-cohort notebook uses bounded parallel downloads from PhysioNet's official S3 mirror and evicts downloader-owned raw staging files after verified conversion. Raw EEG, caches, and expanded demo clips stay on the **Colab runtime disk**. No Google Drive mount or access is used. The full-cohort preparation, training, frozen selection, evaluation, export, local recovery, and real inference checks have passed. The retained recovery archives and final demo are under the gitignored local `recovery/full-seed42/` folder.
 
 In Colab, run the notebook's `run_with_downloads()` wrapper. It launches `python scripts/run_study.py --data /content/chbmit-v2 --output /content/eeg-v2-run/full-seed42 --interactive-backups`. At every completed epoch and natural checkpoint it pauses, offers a compact recovery download, and requires the locally verified SHA-256 before advancing. Backups contain checkpoint/optimizer/RNG state, frozen preprocessing/configuration, compressed window manifests, per-recording calibration/channel mappings, official source inventories and summaries, environment metadata, and reports; source signals and large arrays are excluded. The final demo archive is downloaded separately.
 
@@ -80,7 +144,7 @@ One inventory error was found during verification: `RECORDS-WITH-SEIZURES` lists
 
 chb24 omits non-seizure recordings from its summary; only those verified negative entries are recovered from the inventories. The three unsupported montages, chb12_27, chb12_28, and chb12_29, exclude 10,824 seconds and 13 annotated seizures. Missing channels are never interpolated or filled with zeros.
 
-The verified manifest contains 241,232 training windows (1,062 positive), 51,969 validation windows (287 positive), and 147,727 test windows (210 positive). These are preparation counts, not performance results. `reports/full-cohort/` includes the source accounting, exclusions, patient window counts, and preparation audit. The compressed complete window manifest and calibration metadata are retained in the gitignored recovery archive. The 15/4/4 canonical individual split is disjoint, and the full manifest again confirms the required 11 positive windows in chb02_16.
+The verified source audit accounts for all 686 recordings: **683 eligible recordings** and the three disclosed exclusions. The verified manifest contains 241,232 training windows (1,062 positive), 51,969 validation windows (287 positive), and 147,727 test windows (210 positive). These are preparation counts, not performance results. `reports/full-cohort/` includes the source accounting, exclusions, patient window counts, and preparation audit. Its historical training-progress snapshot is not the final result; use the verified results above and the versioned release metrics for the completed study. The compressed complete window manifest and calibration metadata are retained in the gitignored recovery archive. The 15/4/4 canonical individual split is disjoint, and the full manifest again confirms the required 11 positive windows in chb02_16.
 
 ## Implementation map
 
@@ -107,18 +171,24 @@ This is retrospective window classification. Four test individuals do not establ
 
 ## Deployment
 
-Serve the local preview through FastAPI so CSS, JavaScript, and API routes share the same origin:
+The deployment bundle is published at [GitHub Release v2.0.0](https://github.com/iampenuel/pediatric-eeg-seizure-v2/releases/tag/v2.0.0). It contains 36 files (33,919,613 archive bytes), with only the two ONNX models, frozen scalers, study/metrics metadata, attributed curated clips, and integrity manifest. Raw EDFs, signal caches, recovery archives, and training checkpoints are excluded.
+
+Install the verified release and serve it through FastAPI so CSS, JavaScript, and API routes share the same origin:
 
 ```bash
 python -m pip install --no-cache-dir -e '.[serve]'
+export SEIZURE_ARTIFACT_URL=https://github.com/iampenuel/pediatric-eeg-seizure-v2/releases/download/v2.0.0/demo.tar.gz
+export SEIZURE_ARTIFACT_SHA256=53d0aedd5f73a0cf11fbb99d967c78706cd95461020ac77c51d273ac7d5fe7d5
+export SEIZURE_BUNDLE=artifacts/demo
+python scripts/fetch_artifacts.py
 uvicorn web.backend.app:app --host 127.0.0.1 --port 8765
 ```
 
-Open `http://127.0.0.1:8765/` in the browser. Before the final bundle is installed, the styled interface explicitly reports unavailable inference. Set `SEIZURE_BUNDLE` to the verified expanded demo directory to enable real inference, then restart the server.
+Open `http://127.0.0.1:8765/`. Never open `index.html` as a standalone file. The build downloader verifies the archive SHA-256; the inference service verifies every manifest-listed file and rejects development artifacts. Missing or invalid artifacts produce an explicit unavailable state, never synthetic results.
 
-`render.yaml` describes a single free Python service. The service can show an honest unavailable-artifact interface before research results exist. The final demo requires a verified, full-cohort release bundle. Development artifacts are rejected.
+`render.yaml` defines one free Python 3.12.10 service with a single Uvicorn worker. Configure the same three `SEIZURE_*` environment variables above. The build installs only serving dependencies and fetches the versioned bundle; it does not train or fit preprocessing. `/healthz` returns ready only after verification, with study SHA-256 `5c8ce0a4b71eb22bfc81c093d111d555c044706203b43756d0b935dc3a8ecafd`. `/api/research` exposes audited results and frozen thresholds; example routes perform actual CPU ONNX inference.
 
-Release artifacts contain ONNX models, frozen scalers/thresholds, held-out reports, attributed EEG clips, and hashes. Set `SEIZURE_ARTIFACT_URL` and `SEIZURE_ARTIFACT_SHA256` for build-time retrieval. `/healthz` returns 503 until models are verified; `/api/research` remains available to describe readiness. Free Render services sleep and may have approximately minute-long cold starts.
+The [public Render service](https://pediatric-eeg-seizure-v2.onrender.com/) passed real-artifact API and browser verification on 2026-10-02: ready health check, exact audited metrics, both models, all four curated categories, 18-channel traces, source provenance, channel controls, timeline navigation, desktop layout, and 390-pixel mobile layout without page overflow. The public release download was independently streamed and hash-verified after upload. Render’s build log confirmed verified artifact installation. No scientific decision changed during deployment. Free Render services sleep when idle and can require approximately a minute to start again.
 
 ## Attribution and intended use
 
