@@ -1,0 +1,22 @@
+{
+  "status": "Intermediate full-cohort training; not a frozen model or final evaluation",
+  "baseline_completed_epochs": 1,
+  "baseline_history": [
+    {
+      "epoch": 1,
+      "seconds": 910.6656822140003,
+      "train_loss": 1.0073254395007234,
+      "validation_patient_macro_ap": 0.3830356529488924
+    }
+  ],
+  "residual_completed_epochs": 0,
+  "test_evaluated": false,
+  "thresholds_frozen": false,
+  "dataset_hash": "a22541746f9adf856c807d970dfc84ee307a23559831613430cbd184c0cf8c33",
+  "epoch_1_code_revision": "cbc5ff8c750df256a5618cba70c357e17bfb8ac5",
+  "verified_recovery_sha256": "d014450c98da4d2f7860796fd399fa9766e62311fdce0810b2821ce6cd533265",
+  "checkpoint_stage": "baseline-epoch-01",
+  "checkpoint_created_utc": "2026-10-01T23:52:00.978031+00:00",
+  "io_resume_revision": "a20161cfecf112a874800c6a5bea4b314ccd6d71",
+  "io_resume_reason": "Training-only benchmark showed faster contiguous cache reads using normal read-ahead; model, data, optimizer, RNG state and hyperparameters preserved."
+}

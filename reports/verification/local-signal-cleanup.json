@@ -1,0 +1,56 @@
+{
+  "reason": "User requested raw EEG and large caches on Colab runtime disk only",
+  "scope": "The four known local development recordings and their generated signal caches only",
+  "files": [
+    {
+      "path": "data/raw/chb02/chb02_01.edf",
+      "sha256": "0a04cd84c2e1ea5d656a77ec5b3700001c03737f74c5b78c47147e365a27b5f0",
+      "bytes": 42399744,
+      "kind": "raw"
+    },
+    {
+      "path": "data/cache/chb02/chb02_01.npy",
+      "sha256": "297b50e7f4cd4b4257fec66d986c5cb7a38ec9de68ab0b64d8fdd92792aec5d0",
+      "bytes": 33177728,
+      "kind": "cache"
+    },
+    {
+      "path": "data/raw/chb02/chb02_16.edf",
+      "sha256": "b50345b4b7d35d2735e3d2fc5f7df3e39a60916a881a11f2cd40337e529ea3fa",
+      "bytes": 11299328,
+      "kind": "raw"
+    },
+    {
+      "path": "data/cache/chb02/chb02_16.npy",
+      "sha256": "10dad0c018d0a4980385de10704d16b42e5bfafa2f7ddcf7a4c621092bc35589",
+      "bytes": 8838272,
+      "kind": "cache"
+    },
+    {
+      "path": "data/raw/chb05/chb05_01.edf",
+      "sha256": "8840c7d7b32becffdc2ae35eff4c6e222bf15a23c28b0367005e9ece355daf4c",
+      "bytes": 42517504,
+      "kind": "raw"
+    },
+    {
+      "path": "data/cache/chb05/chb05_01.npy",
+      "sha256": "c9d0d21ff71a7f4d720fd9a6ba9e602deeddac2414e6ed6b86d5e9779bc52d2e",
+      "bytes": 33269888,
+      "kind": "cache"
+    },
+    {
+      "path": "data/raw/chb05/chb05_06.edf",
+      "sha256": "8a15d8871289ff5947136c2bbd4482af9a9ac30d402efd3357993b064e86a2fd",
+      "bytes": 42399744,
+      "kind": "raw"
+    },
+    {
+      "path": "data/cache/chb05/chb05_06.npy",
+      "sha256": "4b14cb68d9de22fe3b863de1f75ca9a2ef49d5a9b0b7bf0a5c95d81f7ab75ebb",
+      "bytes": 33177728,
+      "kind": "cache"
+    }
+  ],
+  "retained": "Compact metadata, manifests, reports, checkpoints and recovery archives",
+  "removed": true
+}

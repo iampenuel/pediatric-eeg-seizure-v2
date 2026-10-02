@@ -2,7 +2,7 @@
   "purpose": "Implementation verification only; not the final full-cohort experiment",
   "development": true,
   "offline_tests_passed": 40,
-  "clean_linux_ci": "https://github.com/iampenuel/pediatric-eeg-seizure-v2/actions/runs/36942447720",
+  "clean_linux_ci": "https://github.com/iampenuel/pediatric-eeg-seizure-v2/actions/runs/36943585164",
   "real_data_recordings": [
     "chb02/chb02_01.edf",
     "chb02/chb02_16.edf",
@@ -55,7 +55,7 @@
     "verified": "browser download from Colab; archive and member hashes verified; local folder confirmed gitignored"
   },
   "io_equivalence": "io-equivalence.json",
-  "colab_offline_tests_passed": 38,
+  "colab_offline_tests_passed": 40,
   "serve_only_clean_environment": {
     "git_commit": "a7d261dec994b4db23aabeb17c0c7fb091ccb855",
     "python": "3.12",
@@ -74,6 +74,6 @@
     "scope": "Two-epoch CPU synthetic-data integration using the real baseline and training loop; interrupted after the first saved epoch, then resumed. Not a GPU or clinical-performance claim.",
     "result": "Exact final weights, Adam state, RNG states, validation history and selected threshold match uninterrupted training."
   },
-  "clean_linux_ci_test_count": 39,
+  "clean_linux_ci_test_count": 40,
   "contiguous_cache_io": "contiguous-io.json"
 }
