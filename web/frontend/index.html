@@ -1,33 +1,88 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Explore how compact EEG seizure detectors generalize to unseen patients. A reproducible CHB-MIT research project.">
-  <title>Pediatric EEG · Research Explorer</title>
-  <link rel="stylesheet" href="/static/style.css?v=2">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Inspect the frozen Pediatric EEG V2 study: patient-independent CHB-MIT results, real EEG examples, model scores, and limitations.">
+  <title>Pediatric EEG V2 · Research explorer</title>
+  <link rel="preload" href="/static/fonts/IBMPlexSans-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/static/fonts/IBMPlexMono-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/static/style.css?v=3">
 </head>
 <body>
-  <header class="topbar"><a class="brand" href="/" aria-label="Pediatric EEG home"><span class="mark" aria-hidden="true">∿</span><span>Pediatric EEG<span class="brand-sub">RESEARCH EXPLORER</span></span></a><div class="header-links"><a href="https://github.com/iampenuel/pediatric-eeg-seizure-v2" target="_blank" rel="noopener">Repository ↗</a><span class="version">V2 / CHB-MIT</span></div></header>
+  <a class="skip-link" href="#workspace">Skip to EEG explorer</a>
+  <header class="topbar">
+    <div class="identity"><h1><a href="/">Pediatric EEG V2</a></h1><p>Patient-independent seizure detection</p></div>
+    <div class="header-context"><span>CHB-MIT</span><span class="study-state">Frozen study</span></div>
+    <nav aria-label="Research links"><a href="https://github.com/iampenuel/pediatric-eeg-seizure-v2" target="_blank" rel="noopener">Repository ↗</a><a href="#methods">Methods</a><a href="https://physionet.org/content/chbmit/1.0.0/" target="_blank" rel="noopener">Source data ↗</a></nav>
+  </header>
   <main>
-    <section class="intro"><div><p class="eyebrow">PATIENT-INDEPENDENT SEIZURE DETECTION</p><h1>What happens with<br><em>an unseen patient?</em></h1><p class="lede">Look beyond aggregate accuracy. Explore the signal, inspect model behavior, and examine where a compact EEG detector fails.</p></div><aside class="study-card"><span class="study-number">23<span>individuals</span></span><p>One frozen patient-independent protocol.</p><div class="split-bar" aria-label="15 training, 4 validation, 4 test individuals"><span></span><span></span><span></span></div><div class="split-labels"><span><i></i>15 train</span><span><i></i>4 validation</span><span><i></i>4 test</span></div><small>chb01 + chb21 count as one individual.</small></aside></section>
-    <div id="status" class="status" role="status" aria-live="polite"><span class="status-dot"></span><span id="status-text">Connecting to research artifacts…</span></div>
-    <section class="metrics" aria-label="Held-out test metrics">
-      <div class="metric"><span>SENSITIVITY</span><strong id="sensitivity">—</strong><small>Seizure-window recall</small></div>
-      <div class="metric"><span>SPECIFICITY</span><strong id="specificity">—</strong><small>Non-seizure-window recall</small></div>
-      <div class="metric"><span>F1 SCORE</span><strong id="f1">—</strong><small>Precision–recall balance</small></div>
-      <div class="metric"><span>AUPRC / AP</span><strong id="auprc_ap">—</strong><small>Average precision</small></div>
+    <section class="study-strip" aria-label="Frozen study context">
+      <dl><div><dt>Unique individuals</dt><dd>23</dd></div><div><dt>Held-out individuals</dt><dd id="heldout-individuals">—</dd></div><div><dt>Held-out hours</dt><dd id="heldout-hours">—</dd></div><div><dt>Test windows</dt><dd id="test-windows">—</dd></div></dl>
+      <p>15 train / 4 validation / 4 test <span>·</span> chb01 + chb21 are one individual</p>
     </section>
-    <p class="metrics-caption" id="metrics-caption">Final held-out results will appear only after the full-cohort experiment is verified.</p>
-    <details id="result-details" class="result-details" hidden><summary>Complete held-out metrics and patient / case breakdown</summary><p id="result-context"></p><div id="result-tables"></div></details>
-    <section class="workspace" aria-label="EEG research explorer">
-      <aside class="controls"><p class="eyebrow">01 / SELECT AN EXAMPLE</p><label for="model">Model</label><select id="model" disabled><option>Awaiting trained models</option></select><label for="category">Illustration category</label><select id="category" disabled><option value="all">All examples</option><option value="TP">Correct seizure detection</option><option value="TN">Correct non-seizure</option><option value="FP">False positive</option><option value="FN">False negative</option></select><p class="help">Categories refer to the model used to curate each clip; switching models may change the prediction.</p><div id="examples" class="example-list"><div class="empty-list">No verified examples loaded.</div></div><div class="provenance"><span class="eyebrow">SOURCE & PROVENANCE</span><p id="patient-context">Curated clips will come exclusively from the frozen test partition.</p><dl><dt>Recording</dt><dd id="recording">—</dd><dt>Individual</dt><dd id="individual">—</dd><dt>Case</dt><dd id="case">—</dd><dt>Source</dt><dd><a id="source-link" hidden target="_blank" rel="noopener">Official EDF ↗</a></dd><dt>Source SHA-256</dt><dd id="source-hash">—</dd><dt>Sampling</dt><dd>256 Hz · 18 channels</dd></dl></div></aside>
-      <div class="signal-area"><div class="panel-head"><div><p class="eyebrow">02 / INSPECT THE SIGNAL</p><h2>Multichannel EEG</h2></div><button id="channels-toggle" class="quiet" aria-expanded="false" aria-controls="channel-options">Channels <span>18</span> ▾</button></div><div id="channel-options" class="channel-options" hidden></div><div class="legend"><span><i class="annotation-swatch"></i>Annotated seizure</span><span><i class="prediction-swatch"></i>Above model threshold</span><span>Amplitude in µV</span></div><div class="waveform-wrap"><canvas id="waveform" role="img" aria-label="Multichannel EEG waveform"></canvas><div id="waveform-empty" class="waveform-empty"><span class="empty-symbol" aria-hidden="true">∿</span><h3>Evidence comes first.</h3><p>The viewer is ready. Real EEG and model scores will load here after a verified experiment is attached.</p><span class="small-tag">No simulated research results</span></div></div><div class="wave-footer"><span id="view-range">16-second inspection view</span><div><button id="previous" class="quiet" disabled aria-label="Previous eight seconds">← Previous</button><button id="next" class="quiet" disabled aria-label="Next eight seconds">Next →</button></div></div>
-        <div class="prediction-panel"><div><p class="eyebrow">SELECTED 8-SECOND WINDOW</p><h3 id="prediction">Awaiting inference</h3><p id="truth">Annotated label —</p></div><div class="score-block"><span>SEIZURE SCORE</span><strong id="score">—</strong><small id="threshold">Fixed validation threshold —</small></div></div>
-        <div class="timeline-head"><div><p class="eyebrow">03 / FOLLOW MODEL BEHAVIOR</p><h2>Score over time</h2></div><span class="small-tag">8-second windows</span></div><canvas id="timeline" role="img" aria-label="Model scores across consecutive EEG windows"></canvas><p class="help">Select a window on the timeline to inspect it. Highlighted regions join consecutive positive windows; they are not clinical alarms.</p>
+    <section class="result-summary" aria-labelledby="summary-title">
+      <div class="section-heading"><h2 id="summary-title">Held-out results <span id="summary-model">· awaiting verified artifacts</span></h2><a href="#full-results">Full results ↓</a></div>
+      <dl class="metrics" aria-label="Held-out test metrics">
+        <div><dt>Sensitivity</dt><dd id="sensitivity">—</dd><small>Seizure-window recall</small></div>
+        <div><dt>Specificity</dt><dd id="specificity">—</dd><small>Non-seizure-window recall</small></div>
+        <div><dt>Average precision</dt><dd id="auprc_ap">—</dd><small>AUPRC / AP</small></div>
+        <div><dt>Detected seizure windows</dt><dd id="detected-windows">—</dd><small>True positives / all positive</small></div>
+        <div><dt>False positives</dt><dd id="false-positives">—</dd><small>Non-seizure windows flagged</small></div>
+      </dl>
+      <p class="help" id="metrics-caption">Metrics load only from verified research artifacts.</p>
+    </section>
+    <div id="status" class="status" role="status" aria-live="polite"><span class="status-marker" aria-hidden="true"></span><span id="status-text">Loading verified research artifacts…</span></div>
+    <section class="workspace" id="workspace" aria-label="EEG research explorer" tabindex="-1">
+      <aside class="controls" aria-label="Model and example inspector">
+        <div class="inspector-controls">
+        <fieldset class="model-control"><legend>Model</legend><div class="segmented">
+          <label><input type="radio" name="model" value="baseline" disabled><span>Baseline CNN</span></label>
+          <label><input type="radio" name="model" value="residual" disabled><span>Residual CNN</span></label>
+        </div></fieldset>
+        <p class="help model-context" id="model-context">The baseline is the validation-selected default.</p>
+        <label class="control-label" for="category">Example type</label>
+        <select id="category" disabled><option value="all">All types</option><option value="TP">Correct seizure</option><option value="TN">Correct non-seizure</option><option value="FP">False positive</option><option value="FN">Missed seizure</option></select>
+        <div class="list-heading"><h2>Held-out examples</h2><span id="example-count" class="technical">—</span></div>
+        <p class="help">Curated for the selected model; not a representative sample.</p>
+        <div id="examples" class="example-list" aria-label="Curated held-out examples"><p class="empty-list">Verified examples are loading.</p></div>
+        </div>
+
+      </aside>
+      <div class="signal-area">
+        <div class="panel-head"><div><h2>Multichannel EEG</h2><p class="help">16-second context · 8-second classification windows</p></div><button id="channels-toggle" class="quiet" aria-expanded="false" aria-controls="channel-options">Channels <span>18</span> <span aria-hidden="true">▾</span></button></div>
+        <div id="channel-options" class="channel-options" hidden></div>
+        <div class="legend" aria-label="Plot legend"><span><i class="selected-swatch" aria-hidden="true"></i>Selected window</span><span><i class="annotation-swatch" aria-hidden="true"></i>Annotated seizure</span><span><i class="prediction-swatch" aria-hidden="true"></i>Above threshold</span></div>
+        <div class="waveform-wrap"><canvas id="waveform" role="img" aria-label="Multichannel EEG waveform" aria-describedby="signal-note"></canvas><div id="waveform-empty" class="waveform-empty"><h3 id="empty-title">Loading EEG</h3><p id="empty-description">Signal and model scores appear after the selected example is verified.</p><span>No simulated research results</span></div></div>
+        <div class="wave-footer"><span id="view-range" class="technical">—</span><div class="window-navigation"><button id="previous" class="quiet" disabled aria-label="Previous eight seconds">← Previous</button><button id="next" class="quiet" disabled aria-label="Next eight seconds">Next →</button></div></div>
+        <p id="signal-note" class="help signal-note">Amplitude in µV. Traces are centred for display with a shared automatic gain; inference uses the frozen preprocessing.</p>
+        <section class="prediction-panel" aria-labelledby="window-title" aria-live="polite" aria-atomic="true">
+          <div class="section-heading"><h3 id="window-title">Selected window</h3><span id="window-range" class="technical">—</span><span id="window-outcome" class="window-outcome"></span></div>
+          <dl class="window-readout"><div><dt>Annotated label</dt><dd id="truth">—</dd></div><div><dt>Predicted label</dt><dd id="prediction">—</dd></div><div><dt>Seizure score</dt><dd id="score" class="technical">—</dd></div><div><dt>Frozen threshold</dt><dd id="threshold" class="technical">—</dd></div></dl>
+          <p id="score-comparison" class="help">Classification uses the full-precision score.</p>
+        </section>
+        <p class="score-note">The seizure score is an uncalibrated model score, not a probability.</p>
+        <div class="timeline-head"><h2>Score over time</h2><span class="help">One score per 8-second window</span></div>
+        <canvas id="timeline" role="slider" tabindex="0" aria-label="Selected EEG window in score timeline" aria-orientation="horizontal" aria-valuemin="1" aria-valuemax="1" aria-valuenow="1" aria-valuetext="No example loaded" aria-disabled="true" aria-describedby="timeline-help"></canvas>
+        <p id="timeline-help" class="help">Select a window, or use ← / → when the timeline is focused. Home / End jump to the first / last window. Highlighted regions are positive windows, not clinical alarms.</p>
       </div>
+        <section class="provenance" aria-labelledby="provenance-title"><h2 id="provenance-title">Example provenance</h2><p id="patient-context">Source details appear when an example is loaded.</p>
+          <dl><dt>Recording</dt><dd id="recording" class="technical">—</dd><dt>Individual / case</dt><dd><span id="individual" class="technical">—</span> / <span id="case" class="technical">—</span></dd><dt>Source recording</dt><dd><a id="source-link" hidden target="_blank" rel="noopener">Official EDF ↗</a></dd><dt>Source SHA-256</dt><dd id="source-hash" class="technical">—</dd><dt>Signal</dt><dd>256 Hz · 18 bipolar channels</dd></dl>
+        </section>
     </section>
-    <section class="methodology"><div><p class="eyebrow">READ THE RESULTS IN CONTEXT</p><h2>Generalization is the experiment.</h2><p>Both architectures use the same source recordings, 18-channel representation, and frozen patient split. Normalization is fitted on training data; checkpoints and thresholds are chosen using validation patients only.</p></div><div><details open><summary>What does the score mean?</summary><p>An uncalibrated model score, not a true probability. Classification uses a fixed threshold chosen to maximize validation patient-macro F1.</p></details><details><summary>Why show false positives and missed seizures?</summary><p>Failures reveal limits hidden by aggregate metrics. Curated clips illustrate model behavior; their frequency does not represent the test set.</p></details><details><summary>What does “full cohort” mean?</summary><p>All 24 cases represent 23 individuals. Fifteen individuals train the models, four select checkpoints and thresholds, and four are held out for testing. Unsupported recordings are explicitly reported. This is a single split, not leave-one-patient-out evaluation.</p></details><details><summary>What are the important limitations?</summary><p>Retrospective window classification on one dataset is not clinical validation. Window recall is not event sensitivity. The four test individuals do not establish broad population performance. Any-overlap labels include seizure boundaries, and missing montage compatibility can exclude recordings.</p></details></div></section>
-    <footer><div><strong>Research, with its limits visible.</strong><p>Research/educational prototype. Not a diagnostic system.<br>Not for clinical decision-making.</p></div><div><a href="https://physionet.org/content/chbmit/1.0.0/" target="_blank" rel="noopener">CHB-MIT · PhysioNet ↗</a><p>John Guttag (2010) · DOI 10.13026/C2K01R<br>Open Data Commons Attribution License v1.0</p></div></footer>
+    <section class="context-section" aria-labelledby="context-title">
+      <h2 id="context-title">Results in context</h2><div class="context-grid"><p>These are retrospective, window-level results from four unseen individuals. High specificity coexists with a substantial false-positive burden and low precision. Window sensitivity is not event-level seizure sensitivity.</p><p>Examples illustrate both correct predictions and failures. Their frequency does not represent the test set. Neither model is calibrated, and these results do not establish broad clinical generalization.</p></div>
+    </section>
+    <section class="methods-section" id="methods" aria-labelledby="methods-title">
+      <h2 id="methods-title">Methods and limitations</h2>
+      <div class="methods-grid"><div><h3>One frozen, patient-independent study</h3><p>CHB-MIT scalp EEG · 23 unique individuals · 15 training, 4 validation, and 4 held-out test individuals. chb01 and chb21 remain together as one person. This is one fixed split, not cross-validation.</p><p>683 eligible recordings, 18 canonical bipolar channels, 256 Hz, and nonoverlapping 8-second windows. Any positive overlap with an annotated seizure labels a window positive; incomplete trailing windows are excluded.</p><p>241,232 training windows · 51,969 validation windows · 147,727 test windows. Unsupported montages chb12_27, chb12_28, and chb12_29 are excluded: 10,824 seconds and 13 annotated seizures. Channels are never interpolated or zero-filled.</p></div>
+        <div><h3>Validation-only selection</h3><p>Both models use the same training-only normalization and frozen preprocessing. No additional filtering. Checkpoints maximize validation patient-macro AP; thresholds maximize validation patient-macro F1. The baseline remains the default based on validation AP.</p>
+          <div class="table-scroll" tabindex="0" role="region" aria-label="Frozen validation selections"><table><caption>Frozen validation selections</caption><thead><tr><th scope="col">Model</th><th scope="col">Epoch</th><th scope="col">Macro AP</th><th scope="col">Macro F1</th><th scope="col">Threshold</th></tr></thead><tbody><tr><th scope="row">Baseline CNN</th><td>11</td><td>0.582622</td><td>0.359526</td><td>0.999</td></tr><tr><th scope="row">Residual CNN</th><td>13</td><td>0.572549</td><td>0.343287</td><td>0.927</td></tr></tbody></table></div>
+          <p>No model or selection changed after inspecting the held-out results. Reports were regenerated from the original frozen models after loss of the first evaluation artifacts. Event sensitivity, false alarms/hour, calibration, and external clinical validation were not evaluated.</p></div></div>
+    </section>
+    <section class="full-results" id="full-results" aria-labelledby="full-results-title"><h2 id="full-results-title">Full held-out results</h2><p class="help">Pooled, patient-macro, individual, and case-level results for the selected model.</p><details id="result-details" class="result-details" hidden><summary>Inspect complete metrics and patient / case tables <span id="table-model"></span></summary><p id="result-context"></p><div id="result-tables"></div></details></section>
+    <footer><p><strong>Research/educational prototype. Not a diagnostic system.</strong><br>Not for clinical decision-making.</p><p><a href="https://physionet.org/content/chbmit/1.0.0/" target="_blank" rel="noopener">CHB-MIT Scalp EEG Database · PhysioNet ↗</a><br>John Guttag (2010) · DOI 10.13026/C2K01R<br>Open Data Commons Attribution License v1.0</p></footer>
   </main>
-  <script src="/static/plot.js"></script><script src="/static/app.js?v=2"></script>
-</body></html>
+  <script src="/static/plot.js?v=3"></script><script src="/static/app.js?v=3"></script>
+</body>
+</html>
